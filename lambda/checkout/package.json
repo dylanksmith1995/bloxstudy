@@ -1,0 +1,9 @@
+{
+  "name": "bloxstudy-checkout",
+  "version": "1.0.0",
+  "description": "BloxStudy Stripe checkout Lambda",
+  "main": "index.js",
+  "dependencies": {
+    "stripe": "^14.0.0"
+  }
+}
