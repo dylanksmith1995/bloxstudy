@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up — BloxStudy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="form-page">
+
+  <div class="form-card form-card-wide">
+    <div class="form-card-header">
+      <a href="index.html" class="logo" style="justify-content:center; color:#fff; margin-bottom:16px;">
+        <div class="logo-mark">B</div>
+        BloxStudy
+      </a>
+      <h1>Create Your Account</h1>
+      <p>7-day free trial — no credit card required to start</p>
+    </div>
+
+    <div class="form-card-body">
+      <form id="signup-form" novalidate>
+
+        <!-- Parent Info -->
+        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">Parent / Guardian Info</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="first-name">First Name</label>
+            <input class="form-input" type="text" id="first-name" placeholder="Jane" autocomplete="given-name"/>
+            <div class="form-error" id="first-name-error">Required.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="last-name">Last Name</label>
+            <input class="form-input" type="text" id="last-name" placeholder="Smith" autocomplete="family-name"/>
+            <div class="form-error" id="last-name-error">Required.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+          <div class="form-error" id="email-error">Please enter a valid email.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-input" type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password"/>
+            <div class="form-error" id="password-error">Must be at least 8 characters.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirm-password">Confirm Password</label>
+            <input class="form-input" type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password"/>
+            <div class="form-error" id="confirm-password-error">Passwords don't match.</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Child Count & Pricing -->
+        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">How Many Children?</p>
+
+        <!-- Child stepper -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--gray-50); border:1.5px solid var(--gray-200); border-radius:var(--radius-md); padding:14px 18px; margin-bottom:14px;">
+          <div>
+            <strong style="color:var(--gray-900); font-size:0.95rem;">Number of Children</strong>
+            <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">$4.99 first child · $1.99 each additional</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px;">
+            <button type="button" id="child-minus" class="btn btn-ghost btn-sm" style="width:36px; height:36px; padding:0; border-radius:50%; font-size:1.2rem; justify-content:center;">−</button>
+            <span id="child-count" style="font-size:1.4rem; font-weight:700; color:var(--gray-900); min-width:20px; text-align:center;">1</span>
+            <button type="button" id="child-plus"  class="btn btn-ghost btn-sm" style="width:36px; height:36px; padding:0; border-radius:50%; font-size:1.2rem; justify-content:center;">+</button>
+          </div>
+        </div>
+
+        <!-- Live price summary -->
+        <div style="background:rgba(59,130,246,0.05); border:1.5px solid rgba(59,130,246,0.2); border-radius:var(--radius-md); padding:14px 18px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--gray-700); margin-bottom:6px;">
+            <span>Base plan (1 child)</span><span>$4.99/mo</span>
+          </div>
+          <div id="extra-line" style="display:none; justify-content:space-between; font-size:0.9rem; color:var(--gray-700); margin-bottom:6px;">
+            <span id="extra-label">Additional children</span><span id="extra-cost"></span>
+          </div>
+          <div style="border-top:1px solid rgba(59,130,246,0.15); margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:700; color:var(--gray-900);">
+            <span>Total</span><span id="total-price">$4.99/mo</span>
+          </div>
+        </div>
+
+        <p style="font-size:0.8rem; color:var(--gray-400); margin-bottom:18px;">
+          💳 You won't be charged until your 7-day free trial ends. Cancel anytime.
+        </p>
+
+        <div class="divider"></div>
+
+        <!-- Terms -->
+        <div class="form-group">
+          <label class="checkbox-label" style="font-size:0.88rem; color:var(--gray-600); gap:10px;">
+            <input type="checkbox" id="terms"/>
+            I agree to the <a href="#" style="color:var(--blue);">Terms of Service</a> and <a href="#" style="color:var(--blue);">Privacy Policy</a>
+          </label>
+          <div class="form-error" id="terms-error">You must agree to continue.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="signup-btn">
+          Create Account &amp; Start Free Trial
+        </button>
+
+      </form>
+
+      <div class="form-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="script.js"></script>
+  <script>
+    // ── Child count stepper ──────────────────────────────────
+    const BASE_PRICE  = 4.99;
+    const EXTRA_PRICE = 2.00;
+    let childCount = 1;
+
+    const countEl    = document.getElementById('child-count');
+    const minusBtn   = document.getElementById('child-minus');
+    const plusBtn    = document.getElementById('child-plus');
+    const extraLine  = document.getElementById('extra-line');
+    const extraLabel = document.getElementById('extra-label');
+    const extraCost  = document.getElementById('extra-cost');
+    const totalEl    = document.getElementById('total-price');
+
+    function updatePricing() {
+      countEl.textContent = childCount;
+      minusBtn.disabled   = childCount <= 1;
+
+      const extras = childCount - 1;
+      const total  = BASE_PRICE + extras * EXTRA_PRICE;
+
+      if (extras > 0) {
+        extraLine.style.display  = 'flex';
+        extraLabel.textContent   = `${extras} additional child${extras > 1 ? 'ren' : ''}`;
+        extraCost.textContent    = `$${(extras * EXTRA_PRICE).toFixed(2)}/mo`;
+      } else {
+        extraLine.style.display  = 'none';
+      }
+      totalEl.textContent = `$${total.toFixed(2)}/mo`;
+    }
+
+    minusBtn.addEventListener('click', () => { if (childCount > 1) { childCount--; updatePricing(); } });
+    plusBtn.addEventListener('click',  () => { childCount++; updatePricing(); });
+
+    updatePricing(); // init
+
+    // ── Form submit ──────────────────────────────────────────
+    const form = document.getElementById('signup-form');
+    const btn  = document.getElementById('signup-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateSignup()) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account…';
+
+      // TODO: Replace with real AWS Cognito + Stripe checkout
+      // Pass childCount to your Lambda to create the correct Stripe subscription
+      await fakeDelay(1600);
+
+      showToast('🎉 Account created! Welcome to BloxStudy!', 'success');
+      setTimeout(() => window.location.href = 'dashboard.html', 1400);
+    });
+
+    function validateSignup() {
+      let valid = true;
+      clearErrors();
+
+      const fields = [
+        { id: 'first-name',       errId: 'first-name-error',       test: v => v.trim().length > 0 },
+        { id: 'last-name',        errId: 'last-name-error',        test: v => v.trim().length > 0 },
+        { id: 'email',            errId: 'email-error',            test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+        { id: 'password',         errId: 'password-error',         test: v => v.length >= 8 },
+        { id: 'confirm-password', errId: 'confirm-password-error', test: v => v === document.getElementById('password').value },
+      ];
+
+      fields.forEach(f => {
+        const input = document.getElementById(f.id);
+        if (!f.test(input.value)) {
+          showError(f.errId, input);
+          valid = false;
+        }
+      });
+
+      if (!document.getElementById('terms').checked) {
+        document.getElementById('terms-error').classList.add('show');
+        valid = false;
+      }
+      return valid;
+    }
+
+    function showError(errId, input) {
+      document.getElementById(errId).classList.add('show');
+      if (input) input.classList.add('error');
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
+      document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
+    }
+  </script>
+</body>
+</html>
