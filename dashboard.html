@@ -37,7 +37,7 @@
     <div class="sidebar-label">Account</div>
     <ul class="sidebar-nav">
       <li><a href="#settings">⚙️ Settings</a></li>
-      <li><a href="index.html">🚪 Log Out</a></li>
+      <li><a href="#" id="logout-link">🚨 Log Out</a></li>
     </ul>
   </aside>
 
@@ -244,8 +244,21 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<script src="https://unpkg.com/amazon-cognito-identity-js@6/dist/amazon-cognito-identity.min.js"></script>
 <script src="script.js"></script>
 <script>
+  // ── Auth guard: redirect to login if not signed in ─────────
+  Auth.getCurrentUser().then(user => {
+    if (!user) window.location.replace('login.html');
+  });
+
+  // ── Logout ─────────────────────────────────────────────────
+  document.getElementById('logout-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    Auth.signOut();
+  });
+
+  // ── Launch Roblox game ──────────────────────────────────────
   function launchGame(name, url) {
     showToast(`🎮 Launching ${name} in Roblox…`, 'success');
     setTimeout(() => window.open(url, '_blank'), 900);

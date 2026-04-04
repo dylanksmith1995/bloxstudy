@@ -113,10 +113,28 @@
       <div class="form-footer">
         Already have an account? <a href="login.html">Sign in</a>
       </div>
+
+      <!-- Email verification step (shown after successful signUp) -->
+      <div id="verify-section" style="display:none; text-align:center; padding:16px 0 8px;">
+        <div style="font-size:3rem; margin-bottom:12px;">📧</div>
+        <h2 style="color:var(--gray-900); font-size:1.3rem; margin-bottom:6px;">Check Your Email</h2>
+        <p style="color:var(--gray-600); font-size:0.9rem; margin-bottom:4px;">We sent a 6-digit code to:</p>
+        <strong id="verify-email-display" style="color:var(--blue); font-size:0.95rem;"></strong>
+        <div class="form-group" style="margin-top:22px; text-align:left;">
+          <label class="form-label" for="verify-code">Verification Code</label>
+          <input class="form-input" type="text" id="verify-code" placeholder="123456" maxlength="6"
+            style="letter-spacing:0.35em; font-size:1.5rem; text-align:center;"/>
+        </div>
+        <button type="button" class="btn btn-primary btn-full" id="verify-btn" style="margin-top:14px;">
+          Verify Email &amp; Continue
+        </button>
+        <p style="font-size:0.78rem; color:var(--gray-400); margin-top:10px;">Didn't get it? Check your spam folder.</p>
+      </div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
+  <script src="https://unpkg.com/amazon-cognito-identity-js@6/dist/amazon-cognito-identity.min.js"></script>
   <script src="script.js"></script>
   <script>
     // ── Child count stepper ──────────────────────────────────
@@ -165,12 +183,27 @@
       btn.disabled = true;
       btn.textContent = 'Creating account…';
 
-      // TODO: Replace with real AWS Cognito + Stripe checkout
-      // Pass childCount to your Lambda to create the correct Stripe subscription
-      await fakeDelay(1600);
+      const emailVal = document.getElementById('email').value.trim();
 
-      showToast('🎉 Account created! Welcome to BloxStudy!', 'success');
-      setTimeout(() => window.location.href = 'dashboard.html', 1400);
+      try {
+        await Auth.signUp(
+          emailVal,
+          document.getElementById('password').value,
+          document.getElementById('first-name').value.trim(),
+          document.getElementById('last-name').value.trim()
+        );
+        // Hide the form, show email verification step
+        document.getElementById('signup-form').style.display = 'none';
+        document.getElementById('verify-section').style.display = 'block';
+        document.getElementById('verify-email-display').textContent = emailVal;
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Create Account & Start Free Trial';
+        const msg = err.code === 'UsernameExistsException'
+          ? 'An account with that email already exists. <a href="login.html">Sign in instead?</a>'
+          : (err.message || 'Sign up failed. Please try again.');
+        showToast('❌ ' + msg, 'error');
+      }
     });
 
     function validateSignup() {
@@ -209,6 +242,38 @@
       document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
       document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
     }
+
+    // ── Email verification step ──────────────────────────────
+    document.getElementById('verify-btn').addEventListener('click', async () => {
+      const code  = document.getElementById('verify-code').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const vBtn  = document.getElementById('verify-btn');
+
+      if (code.length !== 6 || isNaN(code)) {
+        showToast('❌ Please enter the 6-digit code from your email.', 'error');
+        return;
+      }
+
+      vBtn.disabled = true;
+      vBtn.textContent = 'Verifying…';
+
+      try {
+        await Auth.confirmSignUp(email, code);
+        // Auto sign-in after verification so user lands on dashboard
+        await Auth.signIn(email, document.getElementById('password').value);
+        showToast('🎉 Account verified! Welcome to BloxStudy!', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+      } catch (err) {
+        vBtn.disabled = false;
+        vBtn.textContent = 'Verify Email & Continue';
+        const msgs = {
+          CodeMismatchException:  'That code is incorrect. Please try again.',
+          ExpiredCodeException:   'Code expired — please sign up again.',
+          NotAuthorizedException: 'Already confirmed. Try signing in.'
+        };
+        showToast('❌ ' + (msgs[err.code] || 'Verification failed. Please try again.'), 'error');
+      }
+    });
   </script>
 </body>
 </html>

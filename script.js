@@ -87,48 +87,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /* ============================================================
-   AWS INTEGRATION STUBS
-   Replace these with real AWS SDK / API Gateway calls.
-   See AWS_SETUP.md for full setup instructions.
+   AWS Cognito Authentication
    ============================================================ */
 
-const API_BASE = 'https://YOUR_API_GATEWAY_URL/prod'; // ← replace after AWS setup
+const API_BASE = 'https://YOUR_API_GATEWAY_URL/prod'; // ← replace after Lambda setup
+
+// Cognito config — pool created lazily so the CDN library just needs to exist
+// before any Auth method is called (not at script parse time).
+const _COGNITO_CONFIG = {
+  UserPoolId: 'us-east-1_f69hqs3Tl',
+  ClientId:   '7cv8rlf4d76kajlsfcf4stnp0b'
+};
 
 const Auth = {
-  /**
-   * Sign in via AWS Cognito
-   * @param {string} email
-   * @param {string} password
-   */
-  async signIn(email, password) {
-    // TODO: Use amazon-cognito-identity-js or Amplify Auth
-    // import { CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
-    console.log('[Auth] signIn called', email);
-    return fakeDelay(1000);
+  _pool() {
+    return new AmazonCognitoIdentity.CognitoUserPool(_COGNITO_CONFIG);
+  },
+  _user(email) {
+    return new AmazonCognitoIdentity.CognitoUser({ Username: email, Pool: this._pool() });
   },
 
-  /**
-   * Register a new parent account
-   */
-  async signUp(email, password, firstName, lastName) {
-    console.log('[Auth] signUp called', email);
-    return fakeDelay(1000);
+  // Sign in an existing parent account
+  signIn(email, password) {
+    return new Promise((resolve, reject) => {
+      const details = new AmazonCognitoIdentity.AuthenticationDetails({ Username: email, Password: password });
+      this._user(email).authenticateUser(details, {
+        onSuccess: resolve,
+        onFailure: reject,
+        newPasswordRequired: () => reject({ code: 'NewPasswordRequired', message: 'Password change required.' })
+      });
+    });
   },
 
-  /**
-   * Sign out the current user
-   */
-  async signOut() {
-    console.log('[Auth] signOut called');
+  // Register a new parent account; Cognito will send a verification email
+  signUp(email, password, firstName, lastName) {
+    return new Promise((resolve, reject) => {
+      const attrs = [
+        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'given_name',  Value: firstName }),
+        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'family_name', Value: lastName  }),
+        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'email',       Value: email     }),
+      ];
+      this._pool().signUp(email, password, attrs, null, (err, result) => {
+        if (err) reject(err); else resolve(result);
+      });
+    });
+  },
+
+  // Confirm the email verification code Cognito sends after signUp
+  confirmSignUp(email, code) {
+    return new Promise((resolve, reject) => {
+      this._user(email).confirmRegistration(code, true, (err, result) => {
+        if (err) reject(err); else resolve(result);
+      });
+    });
+  },
+
+  // Sign out and redirect to home
+  signOut() {
+    const user = this._pool().getCurrentUser();
+    if (user) user.signOut();
     window.location.href = 'index.html';
   },
 
-  /**
-   * Get the currently authenticated user
-   */
-  async getCurrentUser() {
-    console.log('[Auth] getCurrentUser called');
-    return null; // return Cognito user object when real
+  // Returns the logged-in CognitoUser or null
+  getCurrentUser() {
+    return new Promise((resolve) => {
+      const user = this._pool().getCurrentUser();
+      if (!user) { resolve(null); return; }
+      user.getSession((err, session) => {
+        resolve((!err && session && session.isValid()) ? user : null);
+      });
+    });
   }
 };
 
