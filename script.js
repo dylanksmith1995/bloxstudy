@@ -116,7 +116,11 @@ async function _cognitoRequest(target, body) {
 const Auth = {
   // Register a new parent account
   async signUp(email, password) {
-    return _cognitoRequest('SignUp', { Username: email, Password: password });
+    return _cognitoRequest('SignUp', {
+      Username: email,
+      Password: password,
+      UserAttributes: [{ Name: 'email', Value: email }]
+    });
   },
 
   // Confirm the 6-digit email verification code
