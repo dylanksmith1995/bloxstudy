@@ -259,10 +259,12 @@
 
       try {
         await Auth.confirmSignUp(email, code);
-        // Auto sign-in after verification so user lands on dashboard
-        await Auth.signIn(email, document.getElementById('password').value);
-        showToast('🎉 Account verified! Welcome to BloxStudy!', 'success');
-        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+        // Sign in so we have a valid Cognito session
+        const session = await Auth.signIn(email, document.getElementById('password').value);
+        const userId  = session.getIdToken().payload.sub;
+        showToast('✅ Email verified! Redirecting to payment…', 'success');
+        // Redirect to Stripe Checkout — subscription activates after payment
+        await API.createCheckoutSession(userId, email, childCount);
       } catch (err) {
         vBtn.disabled = false;
         vBtn.textContent = 'Verify Email & Continue';

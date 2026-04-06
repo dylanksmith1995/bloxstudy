@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
    AWS Cognito Authentication
    ============================================================ */
 
-const API_BASE = 'https://YOUR_API_GATEWAY_URL/prod'; // ← replace after Lambda setup
+const API_BASE = 'https://z4ecr949gc.execute-api.us-east-1.amazonaws.com';
 
 // Cognito config — pool created lazily so the CDN library just needs to exist
 // before any Auth method is called (not at script parse time).
@@ -166,17 +166,15 @@ const API = {
    * Create a Stripe Checkout session via Lambda
    * @param {string} plan — 'starter' | 'family' | 'premium'
    */
-  async createCheckoutSession(plan) {
-    console.log('[API] createCheckoutSession', plan);
-    // Real implementation:
-    // const res = await fetch(`${API_BASE}/checkout`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    //   body: JSON.stringify({ plan })
-    // });
-    // const { url } = await res.json();
-    // window.location.href = url; // redirect to Stripe Checkout
-    return fakeDelay(1000);
+  async createCheckoutSession(userId, email, childCount) {
+    const res = await fetch(`${API_BASE}/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, email, childCount })
+    });
+    if (!res.ok) throw new Error('Failed to create checkout session');
+    const { url } = await res.json();
+    window.location.href = url; // redirect to Stripe Checkout page
   },
 
   /**
