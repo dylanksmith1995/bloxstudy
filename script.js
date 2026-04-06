@@ -106,6 +106,7 @@ async function _cognitoRequest(target, body) {
   });
   const data = await res.json();
   if (!res.ok) {
+    console.error('Cognito error response:', JSON.stringify(data));
     const err = new Error(data.message || 'Cognito error');
     err.code = (data.__type || '').replace('com.amazonaws.cognito.identity.idp.model.', '');
     throw err;
