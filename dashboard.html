@@ -285,8 +285,13 @@
           return; // createCheckoutSession redirects, so stop here
         }
       } else {
-        console.error('Token exchange failed:', tokens);
-        window.location.replace('login.html');
+        // Show the error visibly instead of silently redirecting
+        document.body.innerHTML = `<div style="font-family:sans-serif;padding:40px;text-align:center;">
+          <h2 style="color:#dc2626;">Sign-in error</h2>
+          <p style="color:#6b7280;margin:12px 0;">Token exchange failed. Copy the details below and share them:</p>
+          <pre style="background:#f3f4f6;padding:16px;border-radius:8px;text-align:left;overflow:auto;font-size:0.8rem;">${JSON.stringify(tokens, null, 2)}</pre>
+          <a href="login.html" style="color:#3b82f6;">Back to login</a>
+        </div>`;
       }
     } else {
       // No code — check for existing session
