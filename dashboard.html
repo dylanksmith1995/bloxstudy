@@ -246,20 +246,58 @@
 <div class="toast" id="toast"></div>
 <script src="script.js"></script>
 <script>
-  // ── Auth guard: redirect to login if not signed in ─────────
-  Auth.getCurrentUser().then(user => {
-    if (!user) window.location.replace('login.html');
-  });
+  const _COGNITO_DOMAIN   = 'https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com';
+  const _CLIENT_ID        = '7cv8rlf4d76kajlsfcf4stnp0b';
+  const _REDIRECT_URI     = 'https://leafy-travesseiro-6048df.netlify.app/dashboard.html';
+
+  // ── Exchange auth code for tokens if redirected from Cognito ─────
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+    const code   = params.get('code');
+
+    if (code) {
+      // Exchange code for tokens
+      const res = await fetch(`${_COGNITO_DOMAIN}/oauth2/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type:   'authorization_code',
+          client_id:    _CLIENT_ID,
+          code:         code,
+          redirect_uri: _REDIRECT_URI
+        })
+      });
+      const tokens = await res.json();
+      if (tokens.id_token) {
+        sessionStorage.setItem('bs_id_token',      tokens.id_token);
+        sessionStorage.setItem('bs_access_token',  tokens.access_token);
+        sessionStorage.setItem('bs_refresh_token', tokens.refresh_token);
+        const payload = JSON.parse(atob(tokens.id_token.split('.')[1]));
+        sessionStorage.setItem('bs_user_id', payload.sub);
+        sessionStorage.setItem('bs_email',   payload.email || '');
+        // Clean the code from the URL
+        window.history.replaceState({}, '', '/dashboard.html');
+      } else {
+        console.error('Token exchange failed:', tokens);
+        window.location.replace('login.html');
+      }
+    } else {
+      // No code — check for existing session
+      const user = await Auth.getCurrentUser();
+      if (!user) window.location.replace('login.html');
+    }
+  })();
 
   // ── Logout ─────────────────────────────────────────────────
   document.getElementById('logout-link').addEventListener('click', (e) => {
     e.preventDefault();
-    Auth.signOut();
+    sessionStorage.clear();
+    window.location.href = `${_COGNITO_DOMAIN}/logout?client_id=${_CLIENT_ID}&logout_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Findex.html`;
   });
 
-  // ── Launch Roblox game ──────────────────────────────────────
+  // ── Launch game ────────────────────────────────────────────
   function launchGame(name, url) {
-    showToast(`🎮 Launching ${name} in Roblox…`, 'success');
+    showToast(`🎮 Launching ${name}…`, 'success');
     setTimeout(() => window.open(url, '_blank'), 900);
   }
 </script>

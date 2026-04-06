@@ -179,30 +179,8 @@
       e.preventDefault();
       if (!validateSignup()) return;
 
-      btn.disabled = true;
-      btn.textContent = 'Creating account…';
-
-      const emailVal = document.getElementById('email').value.trim();
-
-      try {
-        await Auth.signUp(
-          emailVal,
-          document.getElementById('password').value,
-          document.getElementById('first-name').value.trim(),
-          document.getElementById('last-name').value.trim()
-        );
-        // Hide the form, show email verification step
-        document.getElementById('signup-form').style.display = 'none';
-        document.getElementById('verify-section').style.display = 'block';
-        document.getElementById('verify-email-display').textContent = emailVal;
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = 'Create Account & Start Free Trial';
-        const msg = err.code === 'UsernameExistsException'
-          ? 'An account with that email already exists. <a href="login.html">Sign in instead?</a>'
-          : (err.message || 'Sign up failed. Please try again.');
-        showToast('❌ ' + msg, 'error');
-      }
+      // Redirect to Cognito Hosted UI signup page
+      window.location.href = 'https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com/signup?client_id=7cv8rlf4d76kajlsfcf4stnp0b&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html';
     });
 
     function validateSignup() {

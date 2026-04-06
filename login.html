@@ -60,30 +60,11 @@
     const form = document.getElementById('login-form');
     const btn  = document.getElementById('login-btn');
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!validateLogin()) return;
-
-      btn.disabled = true;
-      btn.textContent = 'Signing in…';
-
-      try {
-        await Auth.signIn(
-          document.getElementById('email').value.trim(),
-          document.getElementById('password').value
-        );
-        showToast('✅ Signed in! Redirecting…', 'success');
-        setTimeout(() => window.location.href = 'dashboard.html', 1200);
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = 'Sign In';
-        const msgs = {
-          NotAuthorizedException:    'Incorrect email or password.',
-          UserNotFoundException:     'No account found with that email.',
-          UserNotConfirmedException: 'Please verify your email first — check your inbox.'
-        };
-        showToast('❌ ' + (msgs[err.code] || 'Sign in failed. Please try again.'), 'error');
-      }
+      // Redirect to Cognito Hosted UI
+      window.location.href = 'https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com/login?client_id=7cv8rlf4d76kajlsfcf4stnp0b&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html';
     });
 
     function validateLogin() {
