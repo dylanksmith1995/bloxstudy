@@ -122,10 +122,10 @@ const Auth = {
   // Register a new parent account; Cognito will send a verification email
   signUp(email, password, firstName, lastName) {
     return new Promise((resolve, reject) => {
+      // Only send email attribute — add given_name/family_name in Cognito
+      // console if you want to enable those attributes in your user pool later
       const attrs = [
-        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'given_name',  Value: firstName }),
-        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'family_name', Value: lastName  }),
-        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'email',       Value: email     }),
+        new AmazonCognitoIdentity.CognitoUserAttribute({ Name: 'email', Value: email }),
       ];
       this._pool().signUp(email, password, attrs, null, (err, result) => {
         if (err) reject(err); else resolve(result);
