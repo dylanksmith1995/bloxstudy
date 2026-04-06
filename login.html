@@ -21,79 +21,26 @@
     </div>
 
     <div class="form-card-body">
-      <form id="login-form" novalidate>
+      <a href="https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com/login?client_id=7cv8rlf4d76kajlsfcf4stnp0b&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html"
+         class="btn btn-primary btn-full" style="text-align:center; text-decoration:none;">
+        Sign In
+      </a>
 
-        <div class="form-group">
-          <label class="form-label" for="email">Email Address</label>
-          <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
-          <div class="form-error" id="email-error">Please enter a valid email address.</div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="password">Password</label>
-          <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
-          <div class="form-error" id="password-error">Password is required.</div>
-        </div>
-
-        <div class="form-options">
-          <label class="checkbox-label">
-            <input type="checkbox" id="remember"/> Remember me
-          </label>
-          <a href="#">Forgot password?</a>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
-          Sign In
-        </button>
-
-      </form>
-
-      <div class="form-footer">
+      <div class="form-footer" style="margin-top:20px;">
         Don't have an account? <a href="signup.html">Sign up free</a>
       </div>
+
+      <p style="font-size:0.78rem; color:var(--gray-400); text-align:center; margin-top:12px;">
+        Forgot your password? Use the "Forgot password" link on the sign-in page.
+      </p>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
   <script src="script.js"></script>
   <script>
-    const form = document.getElementById('login-form');
-    const btn  = document.getElementById('login-btn');
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!validateLogin()) return;
-      // Redirect to Cognito Hosted UI
-      window.location.href = 'https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com/login?client_id=7cv8rlf4d76kajlsfcf4stnp0b&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html';
-    });
-
-    function validateLogin() {
-      let valid = true;
-      const email    = document.getElementById('email');
-      const password = document.getElementById('password');
-
-      clearErrors();
-
-      if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-        showError('email-error', email);
-        valid = false;
-      }
-      if (!password.value) {
-        showError('password-error', password);
-        valid = false;
-      }
-      return valid;
-    }
-
-    function showError(id, input) {
-      document.getElementById(id).classList.add('show');
-      input.classList.add('error');
-    }
-
-    function clearErrors() {
-      document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
-      document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
-    }
+    // No custom form logic needed — the Sign In button links directly to Cognito
   </script>
 </body>
 </html>

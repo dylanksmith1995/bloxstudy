@@ -277,6 +277,13 @@
         sessionStorage.setItem('bs_email',   payload.email || '');
         // Clean the code from the URL
         window.history.replaceState({}, '', '/dashboard.html');
+        // If user just signed up, send them straight to Stripe checkout
+        const pendingChildren = localStorage.getItem('bs_pending_children');
+        if (pendingChildren) {
+          localStorage.removeItem('bs_pending_children');
+          await API.createCheckoutSession(payload.sub, payload.email || '', parseInt(pendingChildren, 10));
+          return; // createCheckoutSession redirects, so stop here
+        }
       } else {
         console.error('Token exchange failed:', tokens);
         window.location.replace('login.html');

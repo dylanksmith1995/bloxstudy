@@ -23,45 +23,8 @@
     <div class="form-card-body">
       <form id="signup-form" novalidate>
 
-        <!-- Parent Info -->
-        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">Parent / Guardian Info</p>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="first-name">First Name</label>
-            <input class="form-input" type="text" id="first-name" placeholder="Jane" autocomplete="given-name"/>
-            <div class="form-error" id="first-name-error">Required.</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="last-name">Last Name</label>
-            <input class="form-input" type="text" id="last-name" placeholder="Smith" autocomplete="family-name"/>
-            <div class="form-error" id="last-name-error">Required.</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="email">Email Address</label>
-          <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
-          <div class="form-error" id="email-error">Please enter a valid email.</div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <input class="form-input" type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password"/>
-            <div class="form-error" id="password-error">Must be at least 8 characters.</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="confirm-password">Confirm Password</label>
-            <input class="form-input" type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password"/>
-            <div class="form-error" id="confirm-password-error">Passwords don't match.</div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
         <!-- Child Count & Pricing -->
-        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">How Many Children?</p>
+        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">Step 1 of 2 — How Many Children?</p>
 
         <!-- Child stepper -->
         <div style="display:flex; align-items:center; justify-content:space-between; background:var(--gray-50); border:1.5px solid var(--gray-200); border-radius:var(--radius-md); padding:14px 18px; margin-bottom:14px;">
@@ -93,42 +56,14 @@
           💳 You won't be charged until your 7-day free trial ends. Cancel anytime.
         </p>
 
-        <div class="divider"></div>
-
-        <!-- Terms -->
-        <div class="form-group">
-          <label class="checkbox-label" style="font-size:0.88rem; color:var(--gray-600); gap:10px;">
-            <input type="checkbox" id="terms"/>
-            I agree to the <a href="#" style="color:var(--blue);">Terms of Service</a> and <a href="#" style="color:var(--blue);">Privacy Policy</a>
-          </label>
-          <div class="form-error" id="terms-error">You must agree to continue.</div>
-        </div>
-
         <button type="submit" class="btn btn-primary btn-full" id="signup-btn">
-          Create Account &amp; Start Free Trial
+          Continue to Create Account →
         </button>
 
       </form>
 
       <div class="form-footer">
         Already have an account? <a href="login.html">Sign in</a>
-      </div>
-
-      <!-- Email verification step (shown after successful signUp) -->
-      <div id="verify-section" style="display:none; text-align:center; padding:16px 0 8px;">
-        <div style="font-size:3rem; margin-bottom:12px;">📧</div>
-        <h2 style="color:var(--gray-900); font-size:1.3rem; margin-bottom:6px;">Check Your Email</h2>
-        <p style="color:var(--gray-600); font-size:0.9rem; margin-bottom:4px;">We sent a 6-digit code to:</p>
-        <strong id="verify-email-display" style="color:var(--blue); font-size:0.95rem;"></strong>
-        <div class="form-group" style="margin-top:22px; text-align:left;">
-          <label class="form-label" for="verify-code">Verification Code</label>
-          <input class="form-input" type="text" id="verify-code" placeholder="123456" maxlength="6"
-            style="letter-spacing:0.35em; font-size:1.5rem; text-align:center;"/>
-        </div>
-        <button type="button" class="btn btn-primary btn-full" id="verify-btn" style="margin-top:14px;">
-          Verify Email &amp; Continue
-        </button>
-        <p style="font-size:0.78rem; color:var(--gray-400); margin-top:10px;">Didn't get it? Check your spam folder.</p>
       </div>
     </div>
   </div>
@@ -175,79 +110,13 @@
     const form = document.getElementById('signup-form');
     const btn  = document.getElementById('signup-btn');
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      if (!validateSignup()) return;
-
-      // Redirect to Cognito Hosted UI signup page
+      localStorage.setItem('bs_pending_children', childCount);
       window.location.href = 'https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com/signup?client_id=7cv8rlf4d76kajlsfcf4stnp0b&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html';
     });
 
-    function validateSignup() {
-      let valid = true;
-      clearErrors();
 
-      const fields = [
-        { id: 'first-name',       errId: 'first-name-error',       test: v => v.trim().length > 0 },
-        { id: 'last-name',        errId: 'last-name-error',        test: v => v.trim().length > 0 },
-        { id: 'email',            errId: 'email-error',            test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
-        { id: 'password',         errId: 'password-error',         test: v => v.length >= 8 },
-        { id: 'confirm-password', errId: 'confirm-password-error', test: v => v === document.getElementById('password').value },
-      ];
-
-      fields.forEach(f => {
-        const input = document.getElementById(f.id);
-        if (!f.test(input.value)) {
-          showError(f.errId, input);
-          valid = false;
-        }
-      });
-
-      if (!document.getElementById('terms').checked) {
-        document.getElementById('terms-error').classList.add('show');
-        valid = false;
-      }
-      return valid;
-    }
-
-    function showError(errId, input) {
-      document.getElementById(errId).classList.add('show');
-      if (input) input.classList.add('error');
-    }
-
-    function clearErrors() {
-      document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
-      document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
-    }
-
-    // ── Email verification step ──────────────────────────────
-    document.getElementById('verify-btn').addEventListener('click', async () => {
-      const code  = document.getElementById('verify-code').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const vBtn  = document.getElementById('verify-btn');
-
-      if (code.length !== 6 || isNaN(code)) {
-        showToast('❌ Please enter the 6-digit code from your email.', 'error');
-        return;
-      }
-
-      vBtn.disabled = true;
-      vBtn.textContent = 'Verifying…';
-
-      try {
-        await Auth.confirmSignUp(email, code);
-        // Sign in to store tokens in sessionStorage
-        await Auth.signIn(email, document.getElementById('password').value);
-        const userId = sessionStorage.getItem('bs_user_id');
-        showToast('✅ Email verified! Redirecting to payment…', 'success');
-        // Redirect to Stripe Checkout — subscription activates after payment
-        await API.createCheckoutSession(userId, email, childCount);
-      } catch (err) {
-        vBtn.disabled = false;
-        vBtn.textContent = 'Verify Email & Continue';
-        const msgs = {
-          CodeMismatchException:  'That code is incorrect. Please try again.',
-          ExpiredCodeException:   'Code expired — please sign up again.',
           NotAuthorizedException: 'Already confirmed. Try signing in.'
         };
         showToast('❌ ' + (msgs[err.code] || 'Verification failed. Please try again.'), 'error');
