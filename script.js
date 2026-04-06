@@ -87,73 +87,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /* ============================================================
-   AWS Cognito Authentication
+   AWS Cognito Authentication (direct REST API — no SDK needed)
    ============================================================ */
 
 const API_BASE = 'https://z4ecr949gc.execute-api.us-east-1.amazonaws.com';
 
-// Cognito config — pool created lazily so the CDN library just needs to exist
-// before any Auth method is called (not at script parse time).
-const _COGNITO_CONFIG = {
-  UserPoolId: 'us-east-1_f69hqs3Tl',
-  ClientId:   '7cv8rlf4d76kajlsfcf4stnp0b'
-};
+const _COGNITO_ENDPOINT = 'https://cognito-idp.us-east-1.amazonaws.com/';
+const _COGNITO_CLIENT_ID = '7cv8rlf4d76kajlsfcf4stnp0b';
+
+async function _cognitoRequest(target, body) {
+  const res = await fetch(_COGNITO_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': `AWSCognitoIdentityProviderService.${target}`
+    },
+    body: JSON.stringify({ ClientId: _COGNITO_CLIENT_ID, ...body })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    const err = new Error(data.message || 'Cognito error');
+    err.code = (data.__type || '').replace('com.amazonaws.cognito.identity.idp.model.', '');
+    throw err;
+  }
+  return data;
+}
 
 const Auth = {
-  _pool() {
-    return new AmazonCognitoIdentity.CognitoUserPool(_COGNITO_CONFIG);
-  },
-  _user(email) {
-    return new AmazonCognitoIdentity.CognitoUser({ Username: email, Pool: this._pool() });
+  // Register a new parent account
+  async signUp(email, password) {
+    return _cognitoRequest('SignUp', { Username: email, Password: password });
   },
 
-  // Sign in an existing parent account
-  signIn(email, password) {
-    return new Promise((resolve, reject) => {
-      const details = new AmazonCognitoIdentity.AuthenticationDetails({ Username: email, Password: password });
-      this._user(email).authenticateUser(details, {
-        onSuccess: resolve,
-        onFailure: reject,
-        newPasswordRequired: () => reject({ code: 'NewPasswordRequired', message: 'Password change required.' })
-      });
+  // Confirm the 6-digit email verification code
+  async confirmSignUp(email, code) {
+    return _cognitoRequest('ConfirmSignUp', { Username: email, ConfirmationCode: code });
+  },
+
+  // Sign in and return tokens
+  async signIn(email, password) {
+    const data = await _cognitoRequest('InitiateAuth', {
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      AuthParameters: { USERNAME: email, PASSWORD: password }
     });
+    // Store tokens in sessionStorage
+    const tokens = data.AuthenticationResult;
+    sessionStorage.setItem('bs_id_token',      tokens.IdToken);
+    sessionStorage.setItem('bs_access_token',  tokens.AccessToken);
+    sessionStorage.setItem('bs_refresh_token', tokens.RefreshToken);
+    // Decode sub (userId) from IdToken
+    const payload = JSON.parse(atob(tokens.IdToken.split('.')[1]));
+    sessionStorage.setItem('bs_user_id', payload.sub);
+    sessionStorage.setItem('bs_email',   payload.email || email);
+    return tokens;
   },
 
-  // Register a new parent account; Cognito will send a verification email
-  signUp(email, password, firstName, lastName) {
-    return new Promise((resolve, reject) => {
-      // Email is the username — don't pass it as a separate attribute
-      this._pool().signUp(email, password, [], null, (err, result) => {
-        if (err) reject(err); else resolve(result);
-      });
-    });
-  },
-
-  // Confirm the email verification code Cognito sends after signUp
-  confirmSignUp(email, code) {
-    return new Promise((resolve, reject) => {
-      this._user(email).confirmRegistration(code, true, (err, result) => {
-        if (err) reject(err); else resolve(result);
-      });
-    });
-  },
-
-  // Sign out and redirect to home
+  // Sign out and redirect home
   signOut() {
-    const user = this._pool().getCurrentUser();
-    if (user) user.signOut();
+    sessionStorage.clear();
     window.location.href = 'index.html';
   },
 
-  // Returns the logged-in CognitoUser or null
+  // Returns user info if logged in, or null
   getCurrentUser() {
-    return new Promise((resolve) => {
-      const user = this._pool().getCurrentUser();
-      if (!user) { resolve(null); return; }
-      user.getSession((err, session) => {
-        resolve((!err && session && session.isValid()) ? user : null);
-      });
-    });
+    const token = sessionStorage.getItem('bs_id_token');
+    if (!token) return Promise.resolve(null);
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Check token hasn't expired
+      if (payload.exp * 1000 < Date.now()) {
+        sessionStorage.clear();
+        return Promise.resolve(null);
+      }
+      return Promise.resolve({ userId: payload.sub, email: payload.email });
+    } catch {
+      return Promise.resolve(null);
+    }
   }
 };
 
