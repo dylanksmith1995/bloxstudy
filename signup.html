@@ -115,13 +115,6 @@
       localStorage.setItem('bs_pending_children', childCount);
       window.location.href = 'https://us-east-1f69hqs3tl.auth.us-east-1.amazoncognito.com/signup?client_id=7cv8rlf4d76kajlsfcf4stnp0b&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html';
     });
-
-
-          NotAuthorizedException: 'Already confirmed. Try signing in.'
-        };
-        showToast('❌ ' + (msgs[err.code] || 'Verification failed. Please try again.'), 'error');
-      }
-    });
   </script>
 </body>
 </html>
