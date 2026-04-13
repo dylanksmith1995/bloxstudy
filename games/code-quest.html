@@ -201,6 +201,11 @@
       background: #0f1d38; color: var(--yellow);
       border: 1.5px solid #1e3560;
     }
+    #answer-btn {
+      background: #1a0f00; color: #f97316;
+      border: 1.5px solid #7c3a00;
+    }
+    #answer-btn:hover { background: #2a1800; }
 
     /* Output */
     #out-wrap {
@@ -453,9 +458,10 @@
           placeholder="// Type your code here..."></textarea>
       </div>
       <div id="actions">
-        <button class="btn" id="run-btn"   onclick="onRun()">▶ Run Code</button>
-        <button class="btn" id="reset-btn" onclick="onReset()">↺ Reset</button>
-        <button class="btn" id="hint-btn"  onclick="onHint()">💡 Hint</button>
+        <button class="btn" id="run-btn"    onclick="onRun()">▶ Run Code</button>
+        <button class="btn" id="reset-btn"  onclick="onReset()">↺ Reset</button>
+        <button class="btn" id="hint-btn"   onclick="onHint()">💡 Hint</button>
+        <button class="btn" id="answer-btn" onclick="onShowAnswer()">🔓 Answer</button>
       </div>
       <div class="panel-label">📟 <span>output</span></div>
       <div id="out-wrap">
@@ -544,7 +550,8 @@ Press the button below and try it out! ⬇️`,
 
     tutTitle: `🎯 Mission: Guide Blox to the ⭐ star!`,
     tutBody:  `Type  move("right")  in the editor. One line = one step. Press ▶ Run Code to watch me go!`,
-    tutCode:  `move("right")`,
+    tutCode:   `move("right")`,
+    solution: `move("right")\nmove("right")\nmove("right")\nmove("right")\nmove("right")`,
     hints: [
       "Look at the path — which direction does Blox need to go? There's only one way...",
       "Count the empty tiles between Blox and the star. That's how many move() lines you need!",
@@ -597,6 +604,12 @@ move("up")`,
     tutCode:
 `move("right")
 move("up")`,
+    solution:
+`move("right")
+move("right")
+move("right")
+move("up")
+move("up")`,
     hints: [
       "Trace the path with your finger! Blox has to go sideways first, then up.",
       "Count how many tiles he needs to go sideways. Then count how many tiles up. Write those as separate groups!",
@@ -648,7 +661,8 @@ repeat(9, "right")`,
 
     tutTitle: `🎯 Super long corridor! One line is all you need.`,
     tutBody:  `Count the tiles between Blox and the star. Use repeat(number, "direction") to do it in one line!`,
-    tutCode:  `repeat(?, "right")`,
+    tutCode:   `repeat(?, "right")`,
+    solution: `repeat(9, "right")`,
     hints: [
       "Count every empty tile between Blox and the star. That number goes inside repeat()!",
       "The format is: repeat(number, direction). You already know the direction — look at the path!",
@@ -702,6 +716,11 @@ move("up")`,
     tutCode:
 `move("up")
 repeat(?, "left")`,
+    solution:
+`move("up")
+repeat(2, "left")
+repeat(3, "up")
+move("left")`,
     hints: [
       "Start at Blox's position. Which way does he need to go first? Just one direction to start!",
       "Break the path into sections — like a straight bit, then a turn, then another straight bit. Write code for each section separately.",
@@ -1119,8 +1138,19 @@ function closeHint() {
   document.getElementById('code-editor').focus();
 }
 
+function onShowAnswer() {
+  const solution = LEVELS[levelIdx].solution;
+  if (!solution) return;
+  if (!confirm('Show the answer? Try the hints first — you might surprise yourself! 😊')) return;
+  const ed = document.getElementById('code-editor');
+  ed.value = solution;
+  updateLineNums();
+  ed.focus();
+  log('Answer loaded — read it, understand it, then press ▶ Run Code! 📖');
+}
+
 function setButtons(disabled) {
-  ['run-btn', 'reset-btn', 'hint-btn'].forEach(id => {
+  ['run-btn', 'reset-btn', 'hint-btn', 'answer-btn'].forEach(id => {
     document.getElementById(id).disabled = disabled;
   });
 }
