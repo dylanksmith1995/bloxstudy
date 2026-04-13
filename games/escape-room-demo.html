@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloxStudy – Math Escape Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Fredoka One', cursive;
+      color: white;
+      overflow: hidden;
+    }
+    #game-title  { font-size: 1.8rem; color: #4ade80; margin-bottom: 4px; }
+    #game-sub    { color: #64748b; font-size: 0.85rem; font-family: sans-serif; margin-bottom: 12px; }
+    canvas       { border-radius: 14px; border: 3px solid #1e293b; display: block; cursor: default; }
+    #controls    { margin-top: 10px; color: #475569; font-size: 0.8rem; font-family: sans-serif; letter-spacing: 0.03em; }
+
+    /* HUD */
+    #hud { display: flex; gap: 10px; margin-top: 12px; }
+    .badge {
+      display: flex; align-items: center; gap: 7px;
+      background: #1e293b; border: 2px solid #334155;
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 0.82rem; font-family: sans-serif;
+      color: #64748b;
+      transition: border-color 0.4s, color 0.4s;
+    }
+    .badge.solved { border-color: #4ade80; color: #4ade80; }
+    .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; transition: background 0.4s; }
+    .badge.solved .badge-dot { background: #4ade80; }
+
+    /* Modal */
+    #overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: none; align-items: center; justify-content: center;
+      z-index: 50;
+    }
+    #overlay.open { display: flex; }
+    #modal-card {
+      background: #1e293b;
+      border: 3px solid #4ade80;
+      border-radius: 22px;
+      padding: 36px 48px;
+      text-align: center;
+      width: 380px;
+      animation: pop 0.18s ease;
+    }
+    @keyframes pop { from { transform: scale(0.82); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    #m-icon     { font-size: 3.5rem; line-height: 1; }
+    #m-title    { font-size: 1.5rem; margin: 8px 0 4px; color: #f1f5f9; }
+    #m-question { font-size: 2.6rem; color: #4ade80; margin: 16px 0; letter-spacing: 1px; }
+    #m-input {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem; width: 130px;
+      background: #0f172a; color: white;
+      border: 2px solid #4ade80; border-radius: 10px;
+      padding: 8px; text-align: center; outline: none;
+    }
+    #m-input.wrong { border-color: #ef4444; animation: shake 0.25s; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 30% { transform: translateX(-10px); } 70% { transform: translateX(10px); } }
+    #m-btn {
+      display: block; margin: 14px auto 0;
+      background: #4ade80; color: #0f172a;
+      border: none; border-radius: 12px;
+      padding: 10px 36px;
+      font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+      cursor: pointer; transition: transform 0.1s, background 0.2s;
+    }
+    #m-btn:hover { background: #22c55e; transform: scale(1.04); }
+    #m-feedback { margin-top: 10px; min-height: 22px; font-size: 0.95rem; }
+    #m-close {
+      position: absolute; top: 14px; right: 18px;
+      background: none; border: none; color: #64748b;
+      font-size: 1.3rem; cursor: pointer; line-height: 1;
+    }
+    #modal-card { position: relative; }
+  </style>
+</head>
+<body>
+  <div id="game-title">🔒 Math Escape Room</div>
+  <div id="game-sub">Solve 3 puzzles to unlock the exit door!</div>
+  <canvas id="c" width="620" height="460"></canvas>
+  <div id="controls">WASD / Arrow Keys to walk &nbsp;·&nbsp; Press E or click objects to solve</div>
+  <div id="hud">
+    <div class="badge" id="b0"><div class="badge-dot"></div>📚 Bookshelf</div>
+    <div class="badge" id="b1"><div class="badge-dot"></div>💻 Computer</div>
+    <div class="badge" id="b2"><div class="badge-dot"></div>🧪 Lab Flask</div>
+  </div>
+
+  <!-- Challenge Modal -->
+  <div id="overlay">
+    <div id="modal-card">
+      <button id="m-close" onclick="closeModal()">✕</button>
+      <div id="m-icon">📚</div>
+      <div id="m-title">Bookshelf Puzzle</div>
+      <div id="m-question">7 × 8 = ?</div>
+      <input id="m-input" type="number" placeholder="?" autocomplete="off">
+      <button id="m-btn" onclick="checkAnswer()">Submit →</button>
+      <div id="m-feedback"></div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx    = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const WALL = 32;
+
+    // ── Door (gap in top wall) ─────────────────────────────────────────────
+    const door = { x: 258, y: 0, w: 104, h: WALL };
+
+    // ── Puzzle objects ────────────────────────────────────────────────────
+    // cx/cy = interaction center;  rx/ry/rw/rh = drawn rect (same as collision box)
+    const puzzles = [
+      { id:0, label:'Bookshelf',  icon:'📚', cx:118, cy:80,  rx:66,  ry:54,  rw:104, rh:52, color:'#4c1d95', glow:'#a78bfa', q:'7 × 8 = ?',    a:56,  solved:false },
+      { id:1, label:'Computer',   icon:'💻', cx:502, cy:80,  rx:450, ry:54,  rw:104, rh:52, color:'#0c4a6e', glow:'#38bdf8', q:'144 ÷ 12 = ?', a:12,  solved:false },
+      { id:2, label:'Lab Flask',  icon:'🧪', cx:310, cy:240, rx:258, ry:214, rw:104, rh:52, color:'#78350f', glow:'#fcd34d', q:'25 + 37 = ?',  a:62,  solved:false },
+    ];
+
+    // ── Wall collision segments (top wall split around door) ──────────────
+    const walls = [
+      { x:0,             y:0,      w:door.x,                h:WALL },
+      { x:door.x+door.w, y:0,      w:W-(door.x+door.w),     h:WALL },
+      { x:0,             y:H-WALL, w:W,                     h:WALL },
+      { x:0,             y:0,      w:WALL,                  h:H    },
+      { x:W-WALL,        y:0,      w:WALL,                  h:H    },
+      { x:66,  y:54,  w:104, h:52 },   // bookshelf body
+      { x:450, y:54,  w:104, h:52 },   // computer body
+      { x:258, y:214, w:104, h:52 },   // lab bench body
+    ];
+
+    // ── Player ─────────────────────────────────────────────────────────────
+    const P = { x:310, y:390, r:14, spd:2.8 };
+
+    // ── Input ──────────────────────────────────────────────────────────────
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      keys[e.code] = true;
+      if (e.code === 'KeyE' && !modalOpen) tryInteract();
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+    });
+    window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+    canvas.addEventListener('click', e => {
+      if (modalOpen) return;
+      const r = canvas.getBoundingClientRect();
+      const mx = (e.clientX - r.left) * (W / r.width);
+      const my = (e.clientY - r.top)  * (H / r.height);
+      for (const p of puzzles) {
+        if (!p.solved && dist(mx, my, p.cx, p.cy) < 80) { showModal(p); return; }
+      }
+    });
+
+    // ── Modal ──────────────────────────────────────────────────────────────
+    let modalOpen = false, curPuzzle = null, misses = 0;
+
+    function tryInteract() {
+      let best = null, bestD = 9999;
+      for (const p of puzzles) {
+        if (p.solved) continue;
+        const d = dist(P.x, P.y, p.cx, p.cy);
+        if (d < 90 && d < bestD) { best = p; bestD = d; }
+      }
+      if (best) showModal(best);
+    }
+
+    function showModal(p) {
+      curPuzzle = p; modalOpen = true; misses = 0;
+      document.getElementById('m-icon').textContent      = p.icon;
+      document.getElementById('m-title').textContent     = p.label + ' Puzzle';
+      document.getElementById('m-question').textContent  = p.q;
+      document.getElementById('m-feedback').textContent  = '';
+      const inp = document.getElementById('m-input');
+      inp.value = ''; inp.classList.remove('wrong');
+      document.getElementById('overlay').classList.add('open');
+      setTimeout(() => inp.focus(), 50);
+    }
+
+    function closeModal() {
+      modalOpen = false; curPuzzle = null;
+      document.getElementById('overlay').classList.remove('open');
+    }
+
+    function checkAnswer() {
+      const inp = document.getElementById('m-input');
+      const val = parseInt(inp.value, 10);
+      if (isNaN(val)) return;
+
+      if (val === curPuzzle.a) {
+        curPuzzle.solved = true;
+        document.getElementById('m-feedback').innerHTML = '<span style="color:#4ade80">✓ Correct! Amazing! 🎉</span>';
+        document.getElementById('b' + curPuzzle.id).classList.add('solved');
+        spawnBurst(curPuzzle.cx, curPuzzle.cy, 20);
+        if (puzzles.every(p => p.solved)) {
+          doorOpen = true;
+          setTimeout(() => spawnBurst(door.x + door.w / 2, WALL + 20, 40), 300);
+        }
+        setTimeout(closeModal, 900);
+      } else {
+        misses++;
+        inp.value = ''; inp.classList.remove('wrong');
+        void inp.offsetWidth; // restart animation
+        inp.classList.add('wrong');
+        if (misses >= 3) {
+          const a = curPuzzle.a;
+          document.getElementById('m-feedback').innerHTML = `<span style="color:#fbbf24">💡 Hint: the answer is between ${a-5} and ${a+5}</span>`;
+        } else {
+          document.getElementById('m-feedback').textContent = misses === 1 ? 'Try again! 💪' : 'Almost there! 🤔';
+        }
+      }
+    }
+
+    document.getElementById('m-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
+    document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeModal(); });
+
+    // ── Game State ─────────────────────────────────────────────────────────
+    let doorOpen = false, escaped = false;
+    const particles = [];
+
+    function spawnBurst(x, y, n) {
+      const cols = ['#4ade80','#fbbf24','#f87171','#60a5fa','#c084fc','#34d399','#fb923c'];
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const s = 1.5 + Math.random() * 4;
+        particles.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s - 1.5, r: 3+Math.random()*5, life: 1, color: cols[Math.floor(Math.random()*cols.length)] });
+      }
+    }
+
+    // ── Collision ──────────────────────────────────────────────────────────
+    function blocked(nx, ny) {
+      const r = P.r + 3;
+      for (const w of walls) {
+        if (nx+r > w.x && nx-r < w.x+w.w && ny+r > w.y && ny-r < w.y+w.h) return true;
+      }
+      if (!doorOpen) {
+        const d = door;
+        if (nx+r > d.x && nx-r < d.x+d.w && ny+r > d.y && ny-r < d.y+d.h) return true;
+      }
+      return false;
+    }
+
+    function dist(x1,y1,x2,y2) { return Math.hypot(x1-x2, y1-y2); }
+
+    // ── Update ─────────────────────────────────────────────────────────────
+    function update() {
+      if (modalOpen || escaped) return;
+
+      let dx = 0, dy = 0;
+      if (keys['ArrowRight'] || keys['KeyD']) dx++;
+      if (keys['ArrowLeft']  || keys['KeyA']) dx--;
+      if (keys['ArrowDown']  || keys['KeyS']) dy++;
+      if (keys['ArrowUp']    || keys['KeyW']) dy--;
+
+      if (dx || dy) {
+        const len = Math.hypot(dx, dy);
+        const nx  = P.x + (dx/len) * P.spd;
+        const ny  = P.y + (dy/len) * P.spd;
+        if (!blocked(nx, P.y)) P.x = Math.max(P.r, Math.min(W-P.r, nx));
+        if (!blocked(P.x, ny)) P.y = Math.max(P.r, Math.min(H-P.r, ny));
+      }
+
+      // Escape through door
+      if (doorOpen && P.y - P.r <= WALL + 4 && P.x > door.x + 12 && P.x < door.x + door.w - 12) {
+        escaped = true;
+        spawnBurst(P.x, H/2, 60);
+      }
+
+      // Particles
+      for (let i = particles.length-1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= 0.022;
+        p.r  = Math.max(0, p.r - 0.04);
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+
+    // ── Draw helpers ───────────────────────────────────────────────────────
+    function rrect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);     ctx.lineTo(x+w-r, y);
+      ctx.quadraticCurveTo(x+w, y,   x+w, y+r);
+      ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+      ctx.lineTo(x+r, y+h);   ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+      ctx.lineTo(x, y+r);     ctx.quadraticCurveTo(x, y, x+r, y);
+      ctx.closePath();
+    }
+
+    // ── Draw: Room ─────────────────────────────────────────────────────────
+    function drawRoom() {
+      // 1. Wall fill (entire canvas first)
+      ctx.fillStyle = '#374151';
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. Brick pattern on walls
+      ctx.strokeStyle = '#1f2937';
+      ctx.lineWidth = 0.8;
+      for (let y = 0; y <= H; y += 16) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        const off = (Math.floor(y/16) % 2) * 26;
+        for (let x = off; x <= W; x += 52) {
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y+16); ctx.stroke();
+        }
+      }
+
+      // 3. Floor (covers brick pattern inside room)
+      ctx.fillStyle = '#1a2540';
+      ctx.fillRect(WALL, WALL, W-WALL*2, H-WALL*2);
+
+      // 4. Floor tile grid
+      ctx.strokeStyle = '#1e2e50';
+      ctx.lineWidth = 1;
+      const T = 40;
+      for (let x = WALL; x <= W-WALL; x += T) {
+        ctx.beginPath(); ctx.moveTo(x, WALL); ctx.lineTo(x, H-WALL); ctx.stroke();
+      }
+      for (let y = WALL; y <= H-WALL; y += T) {
+        ctx.beginPath(); ctx.moveTo(WALL, y); ctx.lineTo(W-WALL, y); ctx.stroke();
+      }
+
+      // 5. Decorative rug
+      ctx.fillStyle = '#1e3a5f';
+      rrect(144, 172, 332, 208, 14);
+      ctx.fill();
+      ctx.strokeStyle = '#254d7a';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.strokeStyle = '#2a5a8a';
+      ctx.lineWidth = 1.5;
+      rrect(156, 184, 308, 184, 9);
+      ctx.stroke();
+
+      // 6. Wall border highlights (inner rim)
+      ctx.strokeStyle = '#4b5563';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(WALL+1, WALL+1, W-WALL*2-2, H-WALL*2-2);
+    }
+
+    // ── Draw: Door ─────────────────────────────────────────────────────────
+    function drawDoor() {
+      const t = performance.now();
+      if (doorOpen) {
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(door.x, 0, door.w, WALL);
+        const pulse = 0.15 + 0.08 * Math.sin(t * 0.004);
+        ctx.fillStyle = `rgba(74,222,128,${pulse})`;
+        ctx.fillRect(door.x, 0, door.w, WALL + 28);
+        ctx.fillStyle = '#4ade80';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('▲ EXIT ▲', door.x + door.w/2, WALL - 8);
+      } else {
+        ctx.font = '17px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🔒', door.x + door.w/2, WALL + 2);
+        // "Solve all puzzles" tooltip
+        if (!puzzles.every(p => p.solved)) {
+          ctx.fillStyle = 'rgba(100,116,139,0.65)';
+          ctx.font = '10px sans-serif';
+          ctx.fillText('Solve all puzzles to open', door.x + door.w/2, WALL + 18);
+        }
+      }
+    }
+
+    // ── Draw: Puzzle Objects ───────────────────────────────────────────────
+    function drawObjects() {
+      const t = performance.now();
+      for (const p of puzzles) {
+        const near = !p.solved && dist(P.x, P.y, p.cx, p.cy) < 90;
+
+        ctx.save();
+        if (p.solved) {
+          ctx.shadowColor = '#4ade80';
+          ctx.shadowBlur  = 20;
+          ctx.fillStyle   = '#052e16';
+          rrect(p.rx-3, p.ry-3, p.rw+6, p.rh+6, 10);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#064e3b';
+          rrect(p.rx, p.ry, p.rw, p.rh, 8);
+          ctx.fill();
+          ctx.strokeStyle = '#4ade80';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          // Check mark
+          ctx.fillStyle = '#4ade80';
+          ctx.font = 'bold 26px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('✓', p.cx, p.cy + 9);
+        } else {
+          if (near) { ctx.shadowColor = p.glow; ctx.shadowBlur = 24; }
+          ctx.fillStyle = p.color;
+          rrect(p.rx, p.ry, p.rw, p.rh, 8);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          // Icon (inside rect)
+          ctx.font = '22px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(p.icon, p.cx, p.cy + 2);
+          // Label
+          ctx.fillStyle = 'rgba(255,255,255,0.7)';
+          ctx.font = '11px sans-serif';
+          ctx.fillText(p.label, p.cx, p.cy + 18);
+        }
+
+        // "Press E" prompt
+        if (near) {
+          const alpha = 0.6 + 0.4 * Math.sin(t * 0.006);
+          ctx.fillStyle = `rgba(74,222,128,${alpha})`;
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('[E] Examine', p.cx, p.ry - 10);
+        }
+        ctx.restore();
+      }
+    }
+
+    // ── Draw: Player ───────────────────────────────────────────────────────
+    function drawPlayer() {
+      const t  = performance.now();
+      const bx = P.x;
+      const by = P.y + (keys['ArrowUp']   || keys['KeyW'] || keys['ArrowDown']  || keys['KeyS'] ||
+                        keys['ArrowLeft'] || keys['KeyA'] || keys['ArrowRight'] || keys['KeyD']
+                        ? Math.sin(t * 0.01) * 2 : 0);
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.28)';
+      ctx.beginPath();
+      ctx.ellipse(bx, P.y + P.r - 1, P.r * 0.7, P.r * 0.25, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // Body
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath(); ctx.arc(bx, by, P.r, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#15803d'; ctx.lineWidth = 2.5; ctx.stroke();
+
+      // Eyes
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.arc(bx-5, by-4, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(bx+5, by-4, 3, 0, Math.PI*2); ctx.fill();
+
+      // Eye shine
+      ctx.fillStyle = 'white';
+      ctx.beginPath(); ctx.arc(bx-4, by-5, 1.2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(bx+6, by-5, 1.2, 0, Math.PI*2); ctx.fill();
+
+      // Smile
+      ctx.beginPath();
+      ctx.arc(bx, by + 2, 5.5, 0.15*Math.PI, 0.85*Math.PI);
+      ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    // ── Draw: Particles ────────────────────────────────────────────────────
+    function drawParticles() {
+      ctx.save();
+      for (const p of particles) {
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle   = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // ── Draw: Victory ──────────────────────────────────────────────────────
+    function drawVictory() {
+      ctx.fillStyle = 'rgba(0,0,0,0.58)';
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle   = '#0f172a';
+      ctx.strokeStyle = '#4ade80';
+      ctx.lineWidth   = 3;
+      rrect(W/2-170, H/2-110, 340, 220, 22);
+      ctx.fill(); ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.font = '52px sans-serif'; ctx.fillText('🎉', W/2, H/2 - 50);
+
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = 'bold 32px Fredoka One, sans-serif';
+      ctx.fillText('You Escaped!', W/2, H/2 + 8);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('All 3 puzzles solved — well done! ⭐⭐⭐', W/2, H/2 + 46);
+
+      ctx.fillStyle = '#4ade80';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('Refresh to play again', W/2, H/2 + 80);
+    }
+
+    // ── Draw: HUD Overlay ──────────────────────────────────────────────────
+    function drawHUD() {
+      if (escaped) return;
+      const rem = puzzles.filter(p => !p.solved).length;
+      ctx.fillStyle = 'rgba(100,116,139,0.65)';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`${rem} puzzle${rem !== 1 ? 's' : ''} remaining`, WALL + 8, H - 9);
+    }
+
+    // ── Game Loop ──────────────────────────────────────────────────────────
+    function loop() {
+      update();
+      ctx.clearRect(0, 0, W, H);
+      drawRoom();
+      drawDoor();
+      drawObjects();
+      drawPlayer();
+      drawParticles();
+      if (escaped) drawVictory();
+      else drawHUD();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
