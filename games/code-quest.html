@@ -99,11 +99,11 @@
     }
     #maze-canvas {
       border-radius: 16px;
-      border: 2px solid #1e3a6a;
+      border: 2px solid #2d6aaf;
       box-shadow:
-        0 0 0 1px rgba(56,189,248,0.08),
+        0 0 0 1px rgba(56,189,248,0.25),
         0 8px 40px rgba(0,0,0,0.6),
-        0 0 60px rgba(56,189,248,0.08);
+        0 0 60px rgba(56,189,248,0.20);
       display: block;
       position: relative;
     }
@@ -821,13 +821,13 @@ function drawMaze(animOffset = { x: 0, y: 0 }) {
       const y  = r * CELL;
 
       if (ch === '#') {
-        // Wall body
-        mctx.fillStyle = '#142038';
+        // Wall body — solid medium-dark blue so it pops against the floor
+        mctx.fillStyle = '#1a4a8a';
         mctx.fillRect(x, y, CELL, CELL);
 
-        // Brick pattern
-        mctx.strokeStyle = '#0d1729';
-        mctx.lineWidth = 0.6;
+        // Brick pattern (visible on lighter wall)
+        mctx.strokeStyle = '#0f3060';
+        mctx.lineWidth = 0.8;
         const brickOff = (r % 2 === 0) ? 0 : CELL / 2;
         mctx.beginPath();
         mctx.moveTo(x, y + CELL * 0.5);
@@ -841,16 +841,20 @@ function drawMaze(animOffset = { x: 0, y: 0 }) {
           mctx.stroke();
         }
 
-        // Top-left bevel highlight
-        mctx.fillStyle = 'rgba(255,255,255,0.04)';
+        // Top-left bevel highlight (gives 3D depth)
+        mctx.fillStyle = 'rgba(100,180,255,0.22)';
         mctx.fillRect(x, y, CELL, 2);
         mctx.fillRect(x, y, 2, CELL);
+        // Bottom-right shadow
+        mctx.fillStyle = 'rgba(0,0,0,0.30)';
+        mctx.fillRect(x, y + CELL - 2, CELL, 2);
+        mctx.fillRect(x + CELL - 2, y, 2, CELL);
 
       } else {
-        // Floor tile (checkerboard)
-        mctx.fillStyle = (r + c) % 2 === 0 ? '#0b1e36' : '#091829';
+        // Floor tile — clearly lighter than walls
+        mctx.fillStyle = (r + c) % 2 === 0 ? '#2a5a96' : '#224f88';
         mctx.fillRect(x, y, CELL, CELL);
-        mctx.strokeStyle = '#0e2240';
+        mctx.strokeStyle = '#3a70b0';
         mctx.lineWidth = 0.5;
         mctx.strokeRect(x + 0.5, y + 0.5, CELL - 1, CELL - 1);
       }
@@ -873,7 +877,7 @@ function drawMaze(animOffset = { x: 0, y: 0 }) {
 
   // Direction arrows on floor (faint path hints) — only on level 1
   if (levelIdx === 0 && !animating) {
-    mctx.fillStyle = 'rgba(56,189,248,0.12)';
+    mctx.fillStyle = 'rgba(180,230,255,0.45)';
     mctx.font = '11px sans-serif';
     mctx.textAlign = 'center';
     mctx.textBaseline = 'middle';
