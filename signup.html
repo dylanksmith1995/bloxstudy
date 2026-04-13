@@ -24,7 +24,17 @@
       <form id="signup-form" novalidate>
 
         <!-- Child Count & Pricing -->
-        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">Step 1 of 2 — How Many Children?</p>
+        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">Step 1 of 2 — Your Details</p>
+
+        <div class="form-group">
+          <label class="form-label" for="first-name">First Name</label>
+          <input class="form-input" type="text" id="first-name" placeholder="Jane" autocomplete="given-name"/>
+          <div class="form-error" id="first-name-error">Please enter your first name.</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="form-label" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); margin-bottom:14px;">How Many Children?</p>
 
         <!-- Child stepper -->
         <div style="display:flex; align-items:center; justify-content:space-between; background:var(--gray-50); border:1.5px solid var(--gray-200); border-radius:var(--radius-md); padding:14px 18px; margin-bottom:14px;">
@@ -113,7 +123,14 @@
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+      const firstName = document.getElementById('first-name').value.trim();
+      if (!firstName) {
+        document.getElementById('first-name-error').classList.add('show');
+        document.getElementById('first-name').classList.add('error');
+        return;
+      }
       localStorage.setItem('bs_pending_children', childCount);
+      localStorage.setItem('bs_first_name', firstName);
       window.location.href = 'https://us-east-13soun7hqr.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=55nrg7p0vrhut4mlmlqn87pd7i&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fleafy-travesseiro-6048df.netlify.app%2Fdashboard.html';
     });
   </script>

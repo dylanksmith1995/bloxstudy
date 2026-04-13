@@ -47,7 +47,7 @@
     <!-- Top Bar -->
     <div class="dash-topbar">
       <div class="dash-topbar-left">
-        <h1>Good morning, Sarah 👋</h1>
+        <h1 id="greeting-name">Good morning 👋</h1>
         <p>Here's how the kids are doing this week.</p>
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
@@ -277,6 +277,12 @@
         sessionStorage.setItem('bs_email',   payload.email || '');
         // Clean the code from the URL
         window.history.replaceState({}, '', '/dashboard.html');
+        // Set greeting from stored first name or fallback
+        const firstName = localStorage.getItem('bs_first_name') || '';
+        const displayName = firstName ? `, ${firstName}` : '';
+        const hour = new Date().getHours();
+        const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+        document.getElementById('greeting-name').textContent = `Good ${timeOfDay}${displayName} 👋`;
         // If user just signed up, send them straight to Stripe checkout
         const pendingChildren = localStorage.getItem('bs_pending_children');
         if (pendingChildren) {
@@ -296,7 +302,13 @@
     } else {
       // No code — check for existing session
       const user = await Auth.getCurrentUser();
-      if (!user) window.location.replace('login.html');
+      if (!user) { window.location.replace('login.html'); return; }
+      // Set greeting for returning users
+      const storedName = localStorage.getItem('bs_first_name') || '';
+      const nameStr = storedName ? `, ${storedName}` : '';
+      const h = new Date().getHours();
+      const tod = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+      document.getElementById('greeting-name').textContent = `Good ${tod}${nameStr} 👋`;
     }
   })();
 
