@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Quest — BloxStudy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #060d1f;
+      --panel:  #0d1a30;
+      --border: #1e3a5f;
+      --accent: #38bdf8;
+      --green:  #4ade80;
+      --red:    #f87171;
+      --yellow: #fbbf24;
+      --text:   #e2e8f0;
+      --muted:  #64748b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Fredoka One', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    #hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px;
+      border-bottom: 2px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+    }
+    .logo { color: var(--accent); font-size: 1.15rem; }
+    #level-badge {
+      background: var(--accent); color: #060d1f;
+      padding: 3px 12px; border-radius: 20px; font-size: 0.85rem;
+    }
+    #level-title-hdr { font-size: 0.85rem; color: var(--muted); }
+    .brand { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── Main split ─────────────────────────────────────────────── */
+    #main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      overflow: hidden;
+    }
+
+    /* ── Maze panel ─────────────────────────────────────────────── */
+    #maze-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+    #maze-canvas {
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      box-shadow: 0 0 40px rgba(56,189,248,0.12);
+      display: block;
+    }
+
+    /* ── Code panel ─────────────────────────────────────────────── */
+    #code-panel {
+      background: var(--panel);
+      border-left: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .panel-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    #code-editor {
+      flex: 1 1 0;
+      min-height: 160px;
+      max-height: 280px;
+      background: #020b18;
+      color: #4ade80;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.75;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      user-select: text;
+    }
+    #code-editor:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(56,189,248,0.18);
+    }
+    #code-editor::placeholder { color: #1e3a5f; }
+
+    /* Buttons */
+    #actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn {
+      border: none; border-radius: 9px;
+      padding: 9px 16px;
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .btn:hover:not(:disabled) { transform: scale(1.04); }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.38; cursor: not-allowed; }
+    #run-btn   { background: var(--green); color: #052e16; flex: 1; }
+    #reset-btn { background: #1a2840; color: var(--text); border: 1px solid var(--border); }
+    #hint-btn  { background: #1a2840; color: var(--yellow); border: 1px solid var(--border); }
+
+    /* Output */
+    #output-log {
+      flex: 1 1 0;
+      min-height: 80px;
+      max-height: 160px;
+      background: #020b18;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      overflow-y: auto;
+    }
+    .log-ok   { color: #4ade80; }
+    .log-err  { color: #f87171; }
+    .log-info { color: #38bdf8; }
+    .log-win  { color: #fbbf24; }
+    .log-dim  { color: #475569; }
+
+    /* ── Tutorial bar ───────────────────────────────────────────── */
+    #tut-bar {
+      background: #080f20;
+      border-top: 2px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    #tut-icon { font-size: 2rem; flex-shrink: 0; }
+    #tut-text { flex: 1; }
+    #tut-title { font-size: 0.9rem; color: var(--accent); }
+    #tut-body  { font-family: sans-serif; font-size: 0.78rem; color: #64748b; }
+    #tut-code  {
+      background: #020b18; border: 1px solid var(--border);
+      border-radius: 6px; padding: 5px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--green);
+      white-space: pre; flex-shrink: 0;
+    }
+
+    /* ── Lesson overlay ─────────────────────────────────────────── */
+    #lesson-overlay {
+      position: fixed; inset: 0;
+      background: rgba(6,13,31,0.9);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #lesson-card {
+      background: var(--panel);
+      border: 3px solid var(--accent);
+      border-radius: 24px;
+      padding: 36px 44px;
+      text-align: center;
+      max-width: 500px;
+      width: 90vw;
+      animation: pop 0.2s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes pop { from { transform: scale(0.84); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    #les-icon  { font-size: 3.5rem; }
+    #les-title { font-size: 1.5rem; color: var(--accent); margin: 10px 0 6px; }
+    #les-text  {
+      font-family: sans-serif; font-size: 0.88rem; color: #94a3b8;
+      line-height: 1.65; margin-bottom: 18px; white-space: pre-line;
+    }
+    #les-example {
+      background: #020b18; border: 2px solid var(--border);
+      border-radius: 10px; padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: var(--green);
+      text-align: left; margin-bottom: 22px; white-space: pre;
+      overflow-x: auto;
+    }
+    #les-btn {
+      background: var(--accent); color: #060d1f;
+      border: none; border-radius: 12px;
+      padding: 11px 36px;
+      font-family: 'Fredoka One', sans-serif; font-size: 1.05rem;
+      cursor: pointer;
+    }
+    #les-btn:hover { background: #7dd3fc; }
+
+    /* ── Win overlay ────────────────────────────────────────────── */
+    #win-overlay {
+      position: fixed; inset: 0;
+      background: rgba(6,13,31,0.9);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #win-overlay.open { display: flex; }
+    #win-card {
+      background: var(--panel); border: 3px solid var(--green);
+      border-radius: 24px; padding: 40px 48px;
+      text-align: center; max-width: 440px; width: 90vw;
+      animation: pop 0.2s ease;
+    }
+    #win-icon  { font-size: 3.5rem; }
+    #win-title { font-size: 1.7rem; color: var(--green); margin: 8px 0; }
+    #win-text  { font-family: sans-serif; font-size: 0.9rem; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
+    #next-btn  {
+      background: var(--green); color: #052e16; border: none;
+      border-radius: 12px; padding: 11px 36px;
+      font-family: 'Fredoka One', sans-serif; font-size: 1.05rem; cursor: pointer;
+    }
+    #next-btn:hover { background: #86efac; }
+
+    /* ── Particles ──────────────────────────────────────────────── */
+    #p-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div id="hdr">
+    <div class="logo">🤖 Code Quest</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="level-badge">Level 1</span>
+      <span id="level-title-hdr">Your First Command</span>
+    </div>
+    <div class="brand">BloxStudy</div>
+  </div>
+
+  <!-- Main -->
+  <div id="main">
+    <!-- Maze -->
+    <div id="maze-panel">
+      <canvas id="maze-canvas" width="480" height="320"></canvas>
+    </div>
+
+    <!-- Code panel -->
+    <div id="code-panel">
+      <div class="panel-label">// your_code.js</div>
+      <textarea id="code-editor" spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="// Type your code here..."></textarea>
+      <div id="actions">
+        <button class="btn" id="run-btn"   onclick="onRun()">▶ Run Code</button>
+        <button class="btn" id="reset-btn" onclick="onReset()">↺ Reset</button>
+        <button class="btn" id="hint-btn"  onclick="onHint()">💡 Hint</button>
+      </div>
+      <div class="panel-label">// output</div>
+      <div id="output-log">
+        <span class="log-info">&gt; Ready! Write some code above and press Run.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial bar -->
+  <div id="tut-bar">
+    <div id="tut-icon">🤖</div>
+    <div id="tut-text">
+      <div id="tut-title">Mission loading…</div>
+      <div id="tut-body"></div>
+    </div>
+    <div id="tut-code"></div>
+  </div>
+
+  <!-- Lesson overlay -->
+  <div id="lesson-overlay">
+    <div id="lesson-card">
+      <div id="les-icon">🤖</div>
+      <div id="les-title">Welcome!</div>
+      <div id="les-text"></div>
+      <div id="les-example"></div>
+      <button id="les-btn" onclick="dismissLesson()">Let's Go! →</button>
+    </div>
+  </div>
+
+  <!-- Win overlay -->
+  <div id="win-overlay">
+    <div id="win-card">
+      <div id="win-icon">⭐</div>
+      <div id="win-title">Level Complete!</div>
+      <div id="win-text"></div>
+      <button id="next-btn" onclick="nextLevel()">Next Level →</button>
+    </div>
+  </div>
+
+  <canvas id="p-canvas"></canvas>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// LEVEL DEFINITIONS
+// ═══════════════════════════════════════════════════════════
+const LEVELS = [
+  {
+    id: 1,
+    title: "Your First Command",
+
+    lessonIcon:  "🤖",
+    lessonTitle: "Meet Blox! He only understands code.",
+    lessonText:
+`Blox is a robot who lives inside a maze. He can't think for himself — he needs YOU to write code to move him.
+
+A command is an instruction you give to Blox. To move him one step to the right, you write:
+
+   move("right")
+
+The word move is called a function. The "right" inside the brackets tells it which direction. Try it!`,
+    lessonExample: `move("right")`,
+
+    tutTitle: `🎯 Mission: Guide Blox to the ⭐ star!`,
+    tutBody:  `Type move("right") in the editor — one line per step. Press ▶ Run Code to watch him move.`,
+    tutCode:  `move("right")`,
+    hint:
+`// Blox needs to go right 5 steps!
+move("right")
+move("right")
+move("right")
+move("right")
+move("right")`,
+
+    // 12 × 8 grid. # = wall, B = player start, G = goal, space = floor
+    grid: [
+      "############",
+      "############",
+      "############",
+      "#B    G#####",
+      "############",
+      "############",
+      "############",
+      "############",
+    ],
+    playerStart: { row: 3, col: 1 },
+    goalPos:     { row: 3, col: 6 },
+
+    winTitle:   "🎉 First Code Written!",
+    winMessage: "You wrote your first program! move() is called a function — a named command that tells Blox what to do. Every app, game, and website ever made is built from functions like this.",
+  },
+
+  {
+    id: 2,
+    title: "More Directions",
+
+    lessonIcon:  "🤖",
+    lessonTitle: "New directions unlocked!",
+    lessonText:
+`You already know move("right"). Blox can also go:
+
+  move("left")   ←
+  move("up")     ↑
+  move("down")   ↓
+
+You can write as many commands as you want — Blox follows them one by one, in order. That sequence of commands is called a program!`,
+    lessonExample:
+`move("right")
+move("right")
+move("up")`,
+
+    tutTitle: `🎯 Turn the corner to reach the ⭐ star!`,
+    tutBody:  `Use move("right") and move("up") together. Commands run top to bottom — just like reading.`,
+    tutCode:
+`move("right")
+move("up")`,
+    hint:
+`// Go right 3 times, then up 2 times
+move("right")
+move("right")
+move("right")
+move("up")
+move("up")`,
+
+    grid: [
+      "############",
+      "############",
+      "####G#######",
+      "####.#######",
+      "#B...#######",
+      "############",
+      "############",
+      "############",
+    ],
+    playerStart: { row: 4, col: 1 },
+    goalPos:     { row: 2, col: 4 },
+
+    winTitle:   "⭐ Sequence Master!",
+    winMessage: "A program is just instructions in order — Blox reads your code from top to bottom, doing exactly what you wrote. That's all a program ever is: a list of instructions.",
+  },
+
+  {
+    id: 3,
+    title: "The Power of repeat()",
+
+    lessonIcon:  "🤖",
+    lessonTitle: "Good coders are lazy (in a smart way)!",
+    lessonText:
+`Look at the corridor ahead — Blox needs to go right NINE times. Typing move("right") nine times is boring and messy.
+
+Real programmers use loops. I've given you a special function called repeat():
+
+  repeat(3, "right")
+
+This means "move right, 3 times in a row". A loop runs the same command over and over — one of the most powerful ideas in all of coding!`,
+    lessonExample:
+`// Instead of writing this...
+move("right")
+move("right")
+move("right")
+
+// ...write this!
+repeat(3, "right")`,
+
+    tutTitle: `🎯 Long corridor! Use repeat() to save time.`,
+    tutBody:  `repeat(number, "direction") moves Blox that many steps. Count the tiles and write one line!`,
+    tutCode:  `repeat(9, "right")`,
+    hint:     `repeat(9, "right")`,
+
+    grid: [
+      "############",
+      "############",
+      "#B        G#",
+      "############",
+      "############",
+      "############",
+      "############",
+      "############",
+    ],
+    playerStart: { row: 2, col: 1  },
+    goalPos:     { row: 2, col: 10 },
+
+    winTitle:   "🔁 Loop Legend!",
+    winMessage: "repeat() is a loop — one of the three core ideas of all programming (along with functions and conditions). Real developers use loops thousands of times a day. You now think like a coder.",
+  },
+
+  {
+    id: 4,
+    title: "The Real Maze",
+
+    lessonIcon:  "🤖",
+    lessonTitle: "Now you're a coder. Time to prove it!",
+    lessonText:
+`You know:
+  ✅ move()    — move one step
+  ✅ repeat()  — move many steps (loop)
+  ✅ Sequences — commands run in order
+
+Now use all of them together to navigate a real maze.
+
+Look at the path first. Plan your route. Then write the code. If Blox hits a wall, check the output — it tells you exactly which step went wrong. Fixing bugs in your code is called debugging. 🐛`,
+    lessonExample:
+`// Mix move() and repeat()!
+repeat(2, "up")
+repeat(3, "right")
+move("up")`,
+
+    tutTitle: `🎯 Navigate the maze using everything you know!`,
+    tutBody:  `Plan your route before you code. When Blox hits a wall, the output tells you which step failed. Fix it and try again!`,
+    tutCode:
+`move("up")
+repeat(2, "left")`,
+    hint:
+`// Study the maze. Plan. Then code.
+move("up")
+repeat(2, "left")
+repeat(3, "up")
+move("left")`,
+
+    grid: [
+      "############",
+      "#G..########",
+      "##.#########",
+      "##.#########",
+      "##...#######",
+      "####B#######",
+      "############",
+      "############",
+    ],
+    playerStart: { row: 5, col: 4 },
+    goalPos:     { row: 1, col: 1 },
+
+    winTitle:   "🚀 You're a Programmer!",
+    winMessage: "You used functions, sequences, and loops to solve a real problem — that's exactly what programmers do every single day. This is just the beginning. What should Blox do next?",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let levelIdx   = 0;
+let playerPos  = { row: 0, col: 0 };
+let animating  = false;
+let hintShown  = false;
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS + CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const mc   = document.getElementById('maze-canvas');
+const mctx = mc.getContext('2d');
+const CELL = 40;
+
+// ═══════════════════════════════════════════════════════════
+// ROUNDED RECT HELPER
+// ═══════════════════════════════════════════════════════════
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y,     x + w, y + r,     r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x,     y + h, x,     y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x,     y,     x + r, y,         r);
+  ctx.closePath();
+}
+
+// ═══════════════════════════════════════════════════════════
+// CODE PARSER  — only exposes move() and repeat()
+// ═══════════════════════════════════════════════════════════
+function parseCode(code) {
+  const commands = [];
+  let   error    = null;
+
+  const VALID = ['right', 'left', 'up', 'down'];
+
+  const move = (dir) => {
+    if (typeof dir !== 'string' || !VALID.includes(dir))
+      throw new Error(`"${dir}" is not a valid direction.\nUse: "right", "left", "up", or "down"`);
+    commands.push(dir);
+  };
+
+  const repeat = (n, dir) => {
+    if (!Number.isInteger(n) || n < 1 || n > 99)
+      throw new Error(`repeat() first argument must be a whole number between 1 and 99.\nYou wrote: repeat(${n}, ...)`);
+    if (typeof dir !== 'string' || !VALID.includes(dir))
+      throw new Error(`"${dir}" is not a valid direction.\nUse: "right", "left", "up", or "down"`);
+    for (let i = 0; i < n; i++) commands.push(dir);
+  };
+
+  try {
+    // Shadow globals so kids can only use the exposed functions
+    const fn = new Function(
+      'move', 'repeat',
+      'window', 'document', 'alert', 'fetch', 'XMLHttpRequest', 'console',
+      '"use strict";\n' + code
+    );
+    fn(move, repeat,
+       undefined, undefined, undefined, undefined, undefined,
+       { log: () => {} }   // safe console stub
+    );
+  } catch (e) {
+    error = e.message;
+  }
+
+  return { commands, error };
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════════════════════
+// animOffset: {x, y} pixel offset for smooth player movement
+function drawMaze(animOffset = { x: 0, y: 0 }) {
+  const level = LEVELS[levelIdx];
+  const grid  = level.grid;
+  const rows  = grid.length;
+  const cols  = grid[0].length;
+  const t     = performance.now();
+
+  mctx.clearRect(0, 0, mc.width, mc.height);
+
+  // Floor & Walls
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const ch = grid[r][c];
+      const x  = c * CELL;
+      const y  = r * CELL;
+
+      if (ch === '#') {
+        // Wall body
+        mctx.fillStyle = '#142038';
+        mctx.fillRect(x, y, CELL, CELL);
+
+        // Brick pattern
+        mctx.strokeStyle = '#0d1729';
+        mctx.lineWidth = 0.6;
+        const brickOff = (r % 2 === 0) ? 0 : CELL / 2;
+        mctx.beginPath();
+        mctx.moveTo(x, y + CELL * 0.5);
+        mctx.lineTo(x + CELL, y + CELL * 0.5);
+        mctx.stroke();
+        const bx = x - (c * CELL % (CELL)) + brickOff;
+        if ((bx + CELL * 0.5) > x && (bx + CELL * 0.5) < x + CELL) {
+          mctx.beginPath();
+          mctx.moveTo(bx + CELL * 0.5, y);
+          mctx.lineTo(bx + CELL * 0.5, y + CELL * 0.5);
+          mctx.stroke();
+        }
+
+        // Top-left bevel highlight
+        mctx.fillStyle = 'rgba(255,255,255,0.04)';
+        mctx.fillRect(x, y, CELL, 2);
+        mctx.fillRect(x, y, 2, CELL);
+
+      } else {
+        // Floor tile (checkerboard)
+        mctx.fillStyle = (r + c) % 2 === 0 ? '#0b1e36' : '#091829';
+        mctx.fillRect(x, y, CELL, CELL);
+        mctx.strokeStyle = '#0e2240';
+        mctx.lineWidth = 0.5;
+        mctx.strokeRect(x + 0.5, y + 0.5, CELL - 1, CELL - 1);
+      }
+    }
+  }
+
+  // Goal (pulsing star)
+  const gp  = level.goalPos;
+  const gx  = gp.col * CELL + CELL / 2;
+  const gy  = gp.row * CELL + CELL / 2;
+  const glow = 16 + 8 * Math.sin(t * 0.004);
+  mctx.save();
+  mctx.shadowColor = '#fbbf24';
+  mctx.shadowBlur  = glow;
+  mctx.font        = '26px sans-serif';
+  mctx.textAlign   = 'center';
+  mctx.textBaseline = 'middle';
+  mctx.fillText('⭐', gx, gy);
+  mctx.restore();
+
+  // Direction arrows on floor (faint path hints) — only on level 1
+  if (levelIdx === 0 && !animating) {
+    mctx.fillStyle = 'rgba(56,189,248,0.12)';
+    mctx.font = '11px sans-serif';
+    mctx.textAlign = 'center';
+    mctx.textBaseline = 'middle';
+    for (let c = 2; c <= 5; c++) {
+      mctx.fillText('→', c * CELL + CELL/2, 3 * CELL + CELL/2);
+    }
+  }
+
+  // Player (Blox)
+  const px = playerPos.col * CELL + CELL / 2 + animOffset.x;
+  const py = playerPos.row * CELL + CELL / 2 + animOffset.y;
+  drawBlox(px, py);
+}
+
+function drawBlox(cx, cy, scale = 1) {
+  const r = 15 * scale;
+
+  // Shadow
+  mctx.fillStyle = 'rgba(0,0,0,0.35)';
+  mctx.beginPath();
+  mctx.ellipse(cx, cy + r - 1, r * 0.7, r * 0.22, 0, 0, Math.PI * 2);
+  mctx.fill();
+
+  // Body gradient
+  const grad = mctx.createRadialGradient(cx - 4 * scale, cy - 4 * scale, 2, cx, cy, r * 1.1);
+  grad.addColorStop(0, '#60a5fa');
+  grad.addColorStop(1, '#1e40af');
+  mctx.fillStyle = grad;
+  rrect(mctx, cx - r, cy - r, r * 2, r * 2, 5 * scale);
+  mctx.fill();
+
+  // Border
+  mctx.strokeStyle = '#93c5fd';
+  mctx.lineWidth = 1.5 * scale;
+  mctx.stroke();
+
+  // Eyes (dark)
+  mctx.fillStyle = '#0f172a';
+  mctx.beginPath(); mctx.arc(cx - 5 * scale, cy - 3 * scale, 4 * scale, 0, Math.PI * 2); mctx.fill();
+  mctx.beginPath(); mctx.arc(cx + 5 * scale, cy - 3 * scale, 4 * scale, 0, Math.PI * 2); mctx.fill();
+
+  // LED eyes
+  mctx.fillStyle = '#38bdf8';
+  mctx.beginPath(); mctx.arc(cx - 5 * scale, cy - 3 * scale, 2.5 * scale, 0, Math.PI * 2); mctx.fill();
+  mctx.beginPath(); mctx.arc(cx + 5 * scale, cy - 3 * scale, 2.5 * scale, 0, Math.PI * 2); mctx.fill();
+
+  // Eye shine
+  mctx.fillStyle = 'rgba(255,255,255,0.7)';
+  mctx.beginPath(); mctx.arc(cx - 4 * scale, cy - 4 * scale, 1.2 * scale, 0, Math.PI * 2); mctx.fill();
+  mctx.beginPath(); mctx.arc(cx + 6 * scale, cy - 4 * scale, 1.2 * scale, 0, Math.PI * 2); mctx.fill();
+
+  // Smile
+  mctx.strokeStyle = '#93c5fd';
+  mctx.lineWidth = 2 * scale;
+  mctx.beginPath();
+  mctx.arc(cx, cy + 5 * scale, 5 * scale, 0.2 * Math.PI, 0.8 * Math.PI);
+  mctx.stroke();
+
+  // Antenna
+  mctx.strokeStyle = '#93c5fd';
+  mctx.lineWidth = 1.5 * scale;
+  mctx.beginPath(); mctx.moveTo(cx, cy - r); mctx.lineTo(cx, cy - r - 6 * scale); mctx.stroke();
+  mctx.fillStyle = '#38bdf8';
+  mctx.beginPath(); mctx.arc(cx, cy - r - 6 * scale, 2.5 * scale, 0, Math.PI * 2); mctx.fill();
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER LOOP  (keeps goal star pulsing)
+// ═══════════════════════════════════════════════════════════
+let rafActive = false;
+function startLoop() {
+  if (rafActive) return;
+  rafActive = true;
+  (function loop() {
+    if (!animating) drawMaze();
+    requestAnimationFrame(loop);
+  })();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANIMATION
+// ═══════════════════════════════════════════════════════════
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function animateStep(dRow, dCol) {
+  const FRAMES = 14;
+  for (let i = 1; i <= FRAMES; i++) {
+    const pct = i / FRAMES;
+    drawMaze({
+      x: dCol * CELL * (1 - pct),
+      y: dRow * CELL * (1 - pct),
+    });
+    await sleep(16);
+  }
+  drawMaze();
+}
+
+async function animateCommands(commands) {
+  const level = LEVELS[levelIdx];
+  const grid  = level.grid;
+
+  const DIRS = {
+    right: { dr:  0, dc:  1, sym: '→' },
+    left:  { dr:  0, dc: -1, sym: '←' },
+    up:    { dr: -1, dc:  0, sym: '↑' },
+    down:  { dr:  1, dc:  0, sym: '↓' },
+  };
+
+  log('info', `> Running ${commands.length} command${commands.length === 1 ? '' : 's'}…`);
+  await sleep(150);
+
+  for (let i = 0; i < commands.length; i++) {
+    const dir = commands[i];
+    const d   = DIRS[dir];
+    const nr  = playerPos.row + d.dr;
+    const nc  = playerPos.col + d.dc;
+
+    // Bounds + wall check
+    if (nr < 0 || nr >= grid.length || nc < 0 || nc >= grid[0].length || grid[nr][nc] === '#') {
+      log('err', `> Step ${i + 1} — move("${dir}") ${d.sym}  💥 Wall! Blox can't go that way.`);
+      shakeCanvas();
+      await sleep(500);
+      log('dim', `> Fix your code and press ▶ Run again.`);
+      return false;
+    }
+
+    // Move player first, then animate
+    const oldPos  = { ...playerPos };
+    playerPos     = { row: nr, col: nc };
+
+    await animateStep(d.dr, d.dc);
+
+    log('ok', `> Step ${i + 1} — move("${dir}") ${d.sym}  ✓`);
+
+    // Win check
+    if (playerPos.row === level.goalPos.row && playerPos.col === level.goalPos.col) {
+      log('win', `> 🎉 Blox reached the star! You did it!`);
+      await sleep(360);
+      showWin();
+      return true;
+    }
+
+    await sleep(40);
+  }
+
+  const atGoal = playerPos.row === level.goalPos.row && playerPos.col === level.goalPos.col;
+  if (!atGoal) log('info', `> Code finished — Blox didn't reach the star yet. Keep going!`);
+  return false;
+}
+
+function shakeCanvas() {
+  mc.style.transition = 'transform 0.06s ease';
+  mc.style.transform  = 'translateX(-7px)';
+  setTimeout(() => mc.style.transform = 'translateX(7px)',  70);
+  setTimeout(() => mc.style.transform = 'translateX(-5px)', 140);
+  setTimeout(() => mc.style.transform = 'translateX(0)',    210);
+}
+
+// ═══════════════════════════════════════════════════════════
+// OUTPUT LOG
+// ═══════════════════════════════════════════════════════════
+function log(type, msg) {
+  const el  = document.getElementById('output-log');
+  const div = document.createElement('div');
+  div.className   = `log-${type}`;
+  div.textContent = msg;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog() { document.getElementById('output-log').innerHTML = ''; }
+
+// ═══════════════════════════════════════════════════════════
+// BUTTON HANDLERS
+// ═══════════════════════════════════════════════════════════
+async function onRun() {
+  if (animating) return;
+
+  const code = document.getElementById('code-editor').value.trim();
+  clearLog();
+
+  if (!code) { log('info', '> Write some code first!'); return; }
+
+  const { commands, error } = parseCode(code);
+
+  if (error) {
+    log('err', '> ❌ Code error:');
+    error.split('\n').forEach(l => log('err', '  ' + l));
+    log('dim', '> Check your spelling and try again!');
+    return;
+  }
+
+  if (commands.length === 0) {
+    log('info', '> No commands found. Try:  move("right")');
+    return;
+  }
+
+  // Reset to start before running
+  resetPlayer(false);
+  await sleep(80);
+
+  animating = true;
+  setButtons(true);
+  await animateCommands(commands);
+  animating = false;
+  setButtons(false);
+}
+
+function onReset() {
+  if (animating) return;
+  document.getElementById('code-editor').value = '';
+  resetPlayer(true);
+  hintShown = false;
+}
+
+function onHint() {
+  const editor = document.getElementById('code-editor');
+  const level  = LEVELS[levelIdx];
+  if (!hintShown) {
+    editor.value = level.hint;
+    log('info', '> 💡 Hint shown — try to understand why it works, then press ▶ Run!');
+    hintShown = true;
+  } else {
+    clearLog();
+    log('info', '> You already have the hint — press ▶ Run to try it!');
+  }
+}
+
+function setButtons(disabled) {
+  ['run-btn', 'reset-btn', 'hint-btn'].forEach(id => {
+    document.getElementById(id).disabled = disabled;
+  });
+}
+
+function resetPlayer(clearEditor) {
+  playerPos = { ...LEVELS[levelIdx].playerStart };
+  if (clearEditor) {
+    clearLog();
+    log('info', '> Ready! Write some code above and press Run.');
+  }
+  drawMaze();
+}
+
+// ═══════════════════════════════════════════════════════════
+// WIN SCREEN
+// ═══════════════════════════════════════════════════════════
+function showWin() {
+  const level  = LEVELS[levelIdx];
+  const isLast = levelIdx === LEVELS.length - 1;
+  document.getElementById('win-icon').textContent  = '⭐';
+  document.getElementById('win-title').textContent = level.winTitle;
+  document.getElementById('win-text').textContent  = level.winMessage;
+  document.getElementById('next-btn').textContent  = isLast ? '🎓 I\'m a Coder!' : 'Next Level →';
+  document.getElementById('win-overlay').classList.add('open');
+  spawnParticles();
+}
+
+function nextLevel() {
+  document.getElementById('win-overlay').classList.remove('open');
+  if (levelIdx < LEVELS.length - 1) {
+    levelIdx++;
+    loadLevel();
+  } else {
+    // Final screen
+    document.getElementById('win-icon').textContent  = '🚀';
+    document.getElementById('win-title').textContent  = 'You\'re a Real Coder!';
+    document.getElementById('win-text').textContent   = 'You finished all 4 levels using functions, sequences, and loops — the three foundations of ALL programming. Every app, every game, every website uses exactly what you just learned.';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('win-overlay').classList.add('open');
+    spawnParticles();
+    spawnParticles();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LEVEL LOADER
+// ═══════════════════════════════════════════════════════════
+function loadLevel() {
+  const level = LEVELS[levelIdx];
+
+  // Header
+  document.getElementById('level-badge').textContent    = `Level ${level.id}`;
+  document.getElementById('level-title-hdr').textContent = level.title;
+
+  // Tutorial bar
+  document.getElementById('tut-title').textContent = level.tutTitle;
+  document.getElementById('tut-body').textContent  = level.tutBody;
+  document.getElementById('tut-code').textContent  = level.tutCode;
+
+  // Resize canvas for this grid
+  const rows = level.grid.length;
+  const cols = level.grid[0].length;
+  mc.width   = cols * CELL;
+  mc.height  = rows * CELL;
+
+  // Reset state
+  resetPlayer(false);
+  document.getElementById('code-editor').value = '';
+  clearLog();
+  log('info', '> Ready! Write some code above and press Run.');
+  hintShown   = false;
+  animating   = false;
+  setButtons(false);
+
+  // Show lesson
+  document.getElementById('les-icon').textContent  = level.lessonIcon;
+  document.getElementById('les-title').textContent = level.lessonTitle;
+  document.getElementById('les-text').textContent  = level.lessonText;
+  document.getElementById('les-example').textContent = level.lessonExample;
+  document.getElementById('lesson-overlay').style.display = 'flex';
+}
+
+function dismissLesson() {
+  document.getElementById('lesson-overlay').style.display = 'none';
+  document.getElementById('code-editor').focus();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════════
+const pc   = document.getElementById('p-canvas');
+const pctx = pc.getContext('2d');
+let   parts = [];
+
+function resizePC() {
+  pc.width  = window.innerWidth;
+  pc.height = window.innerHeight;
+}
+window.addEventListener('resize', resizePC);
+resizePC();
+
+function spawnParticles() {
+  const COLS = ['#4ade80','#fbbf24','#38bdf8','#f87171','#c084fc','#fb923c','#34d399','#e879f9'];
+  for (let i = 0; i < 70; i++) {
+    const a  = (Math.random() * 0.6 + 0.2) * Math.PI * 2;
+    const sp = 2 + Math.random() * 5;
+    parts.push({
+      x:     Math.random() * pc.width,
+      y:     Math.random() * pc.height * 0.4 + pc.height * 0.1,
+      vx:    Math.cos(a) * sp,
+      vy:    Math.sin(a) * sp - 2,
+      r:     3 + Math.random() * 5,
+      color: COLS[Math.floor(Math.random() * COLS.length)],
+      life:  1,
+    });
+  }
+
+  (function ploop() {
+    pctx.clearRect(0, 0, pc.width, pc.height);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.x  += p.vx; p.y += p.vy; p.vy += 0.09;
+      p.life -= 0.014;
+      pctx.globalAlpha = Math.max(0, p.life);
+      pctx.fillStyle   = p.color;
+      pctx.beginPath(); pctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); pctx.fill();
+      if (p.life <= 0) parts.splice(i, 1);
+    }
+    pctx.globalAlpha = 1;
+    if (parts.length > 0) requestAnimationFrame(ploop);
+    else pctx.clearRect(0, 0, pc.width, pc.height);
+  })();
+}
+
+// Tab key inserts spaces in editor (not nav away)
+document.getElementById('code-editor').addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const t = e.target;
+    const s = t.selectionStart;
+    t.value = t.value.slice(0, s) + '  ' + t.value.slice(t.selectionEnd);
+    t.selectionStart = t.selectionEnd = s + 2;
+  }
+  // Ctrl+Enter = Run
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    onRun();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+loadLevel();
+startLoop();
+</script>
+</body>
+</html>
