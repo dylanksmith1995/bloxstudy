@@ -4,25 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Code Basics — BloxStudy</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:      #07091a;
-      --panel:   #0d1530;
-      --panel2:  #111e3a;
-      --border:  #1e3560;
-      --accent:  #38bdf8;
-      --green:   #4ade80;
-      --red:     #f87171;
-      --yellow:  #fbbf24;
-      --text:    #e2e8f0;
-      --muted:   #4e6585;
+      --bg:      #04060f;
+      --panel:   #0a0f22;
+      --panel2:  #0f1629;
+      --border:  #1a2e52;
+      --accent:  #00d4ff;
+      --accent2: #0099dd;
+      --green:   #00ff88;
+      --red:     #ff4466;
+      --amber:   #ffaa00;
+      --text:    #e8eef8;
+      --muted:   #7a8fa8;
+      --dark:    #030609;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: var(--bg);
+      background: linear-gradient(135deg, var(--dark) 0%, var(--bg) 100%);
       color: var(--text);
       font-family: 'Fredoka One', sans-serif;
       height: 100vh;
@@ -32,200 +34,326 @@
       user-select: none;
     }
 
-    /* ── Header ─────────────────────────────────────────────────── */
+    /* ── HEADER ─────────────────────────────────────────────────── */
     #hdr {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
-      height: 54px;
-      background: linear-gradient(90deg, #0a1228 0%, #0f1d3a 100%);
+      padding: 0 28px;
+      height: 60px;
+      background: linear-gradient(90deg, rgba(10,15,34,0.8) 0%, rgba(15,22,41,0.8) 100%);
       border-bottom: 2px solid var(--border);
       flex-shrink: 0;
-      gap: 12px;
+      gap: 16px;
+      backdrop-filter: blur(10px);
     }
-    .logo {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 1.15rem; color: var(--accent);
-      text-shadow: 0 0 18px rgba(56,189,248,0.5);
-    }
-    #hdr-center { display: flex; align-items: center; gap: 10px; }
-    #level-badge {
-      background: linear-gradient(135deg, #0ea5e9, #6366f1);
-      color: white; padding: 4px 14px;
-      border-radius: 20px; font-size: 0.82rem;
-      box-shadow: 0 2px 10px rgba(99,102,241,0.4);
-    }
-    #level-title { font-size: 0.88rem; color: #7ea8d8; }
-    #level-dots { display: flex; gap: 6px; align-items: center; }
-    .ldot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--border); transition: background 0.3s, box-shadow 0.3s;
-    }
-    .ldot.done { background: var(--green);  box-shadow: 0 0 8px #4ade80; }
-    .ldot.cur  { background: var(--accent); box-shadow: 0 0 8px #38bdf8; }
 
-    /* ── Main ────────────────────────────────────────────────────── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(0,212,255,0.5);
+      font-weight: 700;
+    }
+
+    #hdr-center {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    #level-badge {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #000;
+      padding: 6px 16px;
+      border-radius: 24px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: 0 0 16px rgba(0,212,255,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    #level-title {
+      font-size: 0.88rem;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+
+    #level-dots {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .ldot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .ldot.done {
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(0,255,136,0.5);
+    }
+
+    .ldot.cur {
+      background: var(--accent);
+      box-shadow: 0 0 16px rgba(0,212,255,0.6);
+      transform: scale(1.2);
+    }
+
+    #hdr-back {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    #hdr-back:hover {
+      background: var(--panel);
+      color: var(--accent);
+    }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────────── */
     #main {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 450px;
+      grid-template-columns: 1fr 480px;
+      gap: 16px;
+      padding: 16px;
       overflow: hidden;
-      gap: 12px;
-      padding: 12px;
     }
 
-    /* ── Canvas area ─────────────────────────────────────────────── */
-    #canvas-area {
-      background: radial-gradient(ellipse at center, #0d1e40 0%, #07091a 70%);
+    /* ── CANVAS AREA ─────────────────────────────────────────────── */
+    #canvas-container {
+      background: linear-gradient(135deg, rgba(15,22,41,0.6) 0%, rgba(10,15,34,0.6) 100%);
       border: 2px solid var(--border);
-      border-radius: 12px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    #canvas-area::before {
+
+    #canvas-container::before {
       content: '';
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.15) 0%, transparent 100%),
-        radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.10) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 15%, rgba(255,255,255,0.12) 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.08) 0%, transparent 100%);
+        radial-gradient(1px 1px at 10% 20%, rgba(0,212,255,0.08) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 70%, rgba(0,255,136,0.06) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 15%, rgba(0,212,255,0.06) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 55%, rgba(255,170,0,0.04) 0%, transparent 100%);
       pointer-events: none;
-    }
-    canvas {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
-      position: relative;
       z-index: 1;
     }
 
-    /* ── Right panel ─────────────────────────────────────────────── */
+    canvas {
+      display: block;
+      position: relative;
+      z-index: 2;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* ── RIGHT PANEL ─────────────────────────────────────────────── */
     #right-panel {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       overflow: hidden;
+      min-width: 0;
     }
 
     .panel-box {
-      background: var(--panel);
+      background: linear-gradient(135deg, rgba(10,15,34,0.8) 0%, rgba(15,22,41,0.8) 100%);
       border: 2px solid var(--border);
       border-radius: 12px;
-      padding: 16px;
+      padding: 18px;
       overflow: auto;
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .panel-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .panel-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .panel-box::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
     }
 
     .panel-title {
       font-size: 0.95rem;
       color: var(--accent);
-      margin-bottom: 12px;
-      text-shadow: 0 0 12px rgba(56,189,248,0.3);
+      margin-bottom: 14px;
+      text-shadow: 0 0 12px rgba(0,212,255,0.3);
       display: flex;
       align-items: center;
       gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
     }
 
     .lesson-text {
       font-family: 'Nunito', sans-serif;
-      font-size: 0.85rem;
-      line-height: 1.6;
+      font-size: 0.88rem;
+      line-height: 1.7;
       color: var(--text);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      font-weight: 500;
     }
 
-    .code-example {
-      background: #0a0e24;
-      border: 1px solid #1e3560;
-      border-radius: 6px;
-      padding: 10px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.8rem;
+    .code-block {
+      background: linear-gradient(135deg, rgba(3,6,15,0.8) 0%, rgba(10,15,34,0.6) 100%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
       color: var(--green);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       overflow-x: auto;
       white-space: pre;
+      line-height: 1.6;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
     }
 
-    .control-section {
+    .hint-box {
+      background: linear-gradient(135deg, rgba(255,170,0,0.1) 0%, rgba(255,170,0,0.05) 100%);
+      border-left: 3px solid var(--amber);
+      padding: 10px 12px;
+      border-radius: 6px;
       margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
     }
 
-    .btn {
-      background: linear-gradient(135deg, var(--accent), #0ea5e9);
-      color: white;
+    .hint-label {
+      font-size: 0.7rem;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .hint-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── CONTROLS ────────────────────────────────────────────────── */
+    #controls-box {
+      flex: unset;
+      max-height: fit-content;
+    }
+
+    #controls-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #000;
       border: none;
-      padding: 9px 16px;
+      padding: 12px 16px;
       border-radius: 8px;
       font-family: 'Fredoka One', sans-serif;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(56,189,248,0.3);
-      width: 100%;
-      margin-bottom: 8px;
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(56,189,248,0.5);
-    }
-    .btn:active { transform: translateY(0); }
-
-    .btn-success {
-      background: linear-gradient(135deg, var(--green), #22c55e);
-      box-shadow: 0 4px 12px rgba(74,222,128,0.3);
-    }
-    .btn-success:hover {
-      box-shadow: 0 6px 16px rgba(74,222,128,0.5);
-    }
-
-    .btn-warning {
-      background: linear-gradient(135deg, var(--yellow), #f59e0b);
-      color: #1f2937;
-      box-shadow: 0 4px 12px rgba(245,158,11,0.3);
-    }
-    .btn-warning:hover {
-      box-shadow: 0 6px 16px rgba(245,158,11,0.5);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .progress-section {
-      background: linear-gradient(135deg, #111e3a 0%, #0d1530 100%);
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 12px;
-    }
-
-    .progress-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 6px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+      position: relative;
+      overflow: hidden;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .progress-hint {
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.8rem;
-      color: var(--yellow);
-      margin-top: 8px;
-      line-height: 1.5;
+    .action-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.1);
+      transition: left 0.3s;
     }
 
-    /* ── Win modal ─────────────────────────────────────────────── */
+    .action-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,212,255,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .action-btn:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .action-btn.completed {
+      background: linear-gradient(135deg, var(--green) 0%, #00cc66 100%);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(0,255,136,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--green) 100%);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 8px rgba(0,212,255,0.4);
+    }
+
+    /* ── MODAL ───────────────────────────────────────────────────── */
     #overlay {
       position: fixed;
       inset: 0;
@@ -234,61 +362,87 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      backdrop-filter: blur(4px);
     }
-    #overlay.show { display: flex; }
+
+    #overlay.show {
+      display: flex;
+    }
 
     #modal {
       background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
       border: 2px solid var(--accent);
       border-radius: 16px;
-      padding: 40px 50px;
+      padding: 50px 60px;
       text-align: center;
-      max-width: 400px;
-      box-shadow: 0 20px 60px rgba(56,189,248,0.2);
-      animation: modalPop 0.4s ease-out;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,212,255,0.2), 0 0 40px rgba(0,255,136,0.1);
+      animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     @keyframes modalPop {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     #modal-emoji {
-      font-size: 3.5rem;
-      margin-bottom: 16px;
+      font-size: 4rem;
+      margin-bottom: 20px;
+      animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
     }
 
     #modal-title {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       color: var(--green);
-      margin-bottom: 12px;
-      text-shadow: 0 0 16px rgba(74,222,128,0.3);
+      margin-bottom: 14px;
+      text-shadow: 0 0 20px rgba(0,255,136,0.3);
+      font-weight: 700;
     }
 
     #modal-msg {
       font-family: 'Nunito', sans-serif;
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: var(--text);
-      margin-bottom: 20px;
-      line-height: 1.6;
+      margin-bottom: 28px;
+      line-height: 1.7;
+      font-weight: 500;
     }
 
     .modal-btn {
-      background: linear-gradient(135deg, var(--green), #22c55e);
-      color: white;
+      background: linear-gradient(135deg, var(--green) 0%, #00cc66 100%);
+      color: #000;
       border: none;
-      padding: 12px 32px;
+      padding: 14px 40px;
       border-radius: 8px;
       font-family: 'Fredoka One', sans-serif;
       font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(74,222,128,0.3);
+      box-shadow: 0 4px 16px rgba(0,255,136,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       width: 100%;
     }
+
     .modal-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(74,222,128,0.5);
+      box-shadow: 0 6px 20px rgba(0,255,136,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .modal-btn:active {
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -298,8 +452,8 @@
   <div id="hdr">
     <div class="logo">🎓 BloxStudy</div>
     <div id="hdr-center">
-      <div id="level-badge">Level <span id="level-num">1</span> of 4</div>
-      <div id="level-title">Ready to learn?</div>
+      <div id="level-badge">Level <span id="level-num">1</span>/4</div>
+      <div id="level-title">Learn Coding Basics</div>
       <div id="level-dots">
         <div class="ldot cur" id="dot-0"></div>
         <div class="ldot" id="dot-1"></div>
@@ -307,42 +461,47 @@
         <div class="ldot" id="dot-3"></div>
       </div>
     </div>
-    <a href="../../dashboard.html" style="color: var(--muted); font-size: 0.85rem; text-decoration: none; cursor: pointer;">← Back</a>
+    <a href="../../dashboard.html" id="hdr-back">← Back</a>
   </div>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <div id="main">
-    <!-- Canvas -->
-    <div id="canvas-area">
-      <canvas id="c" width="600" height="500"></canvas>
+    <!-- CANVAS -->
+    <div id="canvas-container">
+      <canvas id="c" width="900" height="560"></canvas>
     </div>
 
-    <!-- Right Panel -->
+    <!-- RIGHT PANEL -->
     <div id="right-panel">
-      <!-- Lesson -->
+      <!-- LESSON -->
       <div class="panel-box">
         <div class="panel-title">📖 Lesson</div>
-        <div id="lesson-content">
-          <div class="lesson-text" id="les-text">Loading...</div>
-          <div class="code-example" id="les-code"></div>
-          <div class="progress-section">
-            <div class="progress-label">💡 Hint</div>
-            <div class="progress-hint" id="les-hint">Pay attention to the robot!</div>
-          </div>
+        <div class="lesson-text" id="les-text">Loading...</div>
+        <div class="code-block" id="les-code"></div>
+        <div class="hint-box">
+          <div class="hint-label">💡 Hint</div>
+          <div class="hint-text" id="les-hint">Pay attention to what happens on the screen!</div>
         </div>
       </div>
 
-      <!-- Controls -->
-      <div class="panel-box" style="flex: unset;">
+      <!-- CONTROLS -->
+      <div class="panel-box" id="controls-box">
         <div class="panel-title">🎮 Actions</div>
-        <div id="controls-area">
-          <!-- Populated by JavaScript -->
+        <div id="controls-area"></div>
+        <div class="progress-info">
+          <span id="prog-text">0/1 actions</span>
+          <div style="flex:1; margin: 0 10px;">
+            <div class="progress-bar">
+              <div class="progress-fill" id="prog-bar" style="width:0%"></div>
+            </div>
+          </div>
+          <span id="prog-pct">0%</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Win Modal -->
+  <!-- MODAL -->
   <div id="overlay">
     <div id="modal">
       <div id="modal-emoji">🎉</div>
@@ -353,208 +512,365 @@
   </div>
 
   <script>
-    // ── SETUP ────────────────────────────────────────────────────────
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
+    const W = canvas.width;
+    const H = canvas.height;
 
-    // ── LEVELS ───────────────────────────────────────────────────────
+    // ── PARTICLES ────────────────────────────────────────────────
+    const particles = [];
+
+    class Particle {
+      constructor(x, y, vx, vy, color, size) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.color = color;
+        this.size = size;
+        this.life = 1;
+        this.decay = 0.98;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.1;
+        this.life *= this.decay;
+      }
+
+      draw(ctx) {
+        ctx.fillStyle = this.color.replace(')', `, ${this.life})`).replace('rgb', 'rgba');
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function createParticles(x, y, count, color) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count;
+        const speed = 2 + Math.random() * 3;
+        particles.push(new Particle(
+          x + Math.cos(angle) * 10,
+          y + Math.sin(angle) * 10,
+          Math.cos(angle) * speed,
+          Math.sin(angle) * speed,
+          color,
+          2 + Math.random() * 2
+        ));
+      }
+    }
+
+    // ── LEVELS ──────────────────────────────────────────────────
     const LEVELS = [
       {
         title: 'First Steps',
-        desc: 'Meet Blox! Press a button to move forward.',
-        hint: 'You\'ve got one button. Try it!',
+        desc: 'Meet Blox! Press the button below to move forward.',
+        hint: 'Tap "Move Forward" and watch what happens!',
         code: 'move()',
-        controls: ['move'],
-        targetX: 500,
+        actions: [{ type: 'move', label: 'Move Forward' }],
+        goal: 400,
         startX: 100,
       },
       {
         title: 'Two Moves',
-        desc: 'Press both buttons in order to reach the goal.',
-        hint: 'First button, then second button. You\'ve got this!',
+        desc: 'Press the button twice to reach the goal.',
+        hint: 'Press the same button again. Keep going!',
         code: 'move()\nmove()',
-        controls: ['move', 'move'],
-        targetX: 300,
+        actions: [
+          { type: 'move', label: 'Move Forward' },
+          { type: 'move', label: 'Move Forward' },
+        ],
+        goal: 300,
         startX: 100,
       },
       {
-        title: 'Three Moves',
-        desc: 'Press all three buttons to reach the goal.',
-        hint: 'Same pattern — just keep going forward!',
-        code: 'move()\nmove()\nmove()',
-        controls: ['move', 'move', 'move'],
-        targetX: 450,
+        title: 'Mix It Up',
+        desc: 'Now you have two actions! Turn first, then move forward.',
+        hint: 'Try turning before moving!',
+        code: 'turn()\nmove()',
+        actions: [
+          { type: 'turn', label: 'Turn Right' },
+          { type: 'move', label: 'Move Forward' },
+        ],
+        goal: 400,
         startX: 100,
+        startDir: 90,
       },
       {
-        title: 'Master Basics!',
-        desc: 'Four moves to the goal. You\'re ready for Code Quest!',
-        hint: 'You know this pattern by now!',
-        code: 'move()\nmove()\nmove()\nmove()',
-        controls: ['move', 'move', 'move', 'move'],
-        targetX: 500,
+        title: 'Master the Basics!',
+        desc: 'Use both actions to reach the goal. You\'re ready for Code Quest!',
+        hint: 'Combine turns and moves to navigate!',
+        code: 'turn()\nmove()\nturn()\nmove()',
+        actions: [
+          { type: 'turn', label: 'Turn Right' },
+          { type: 'move', label: 'Move Forward' },
+          { type: 'turn', label: 'Turn Right' },
+          { type: 'move', label: 'Move Forward' },
+        ],
+        goal: 500,
         startX: 100,
+        startDir: 90,
       },
     ];
 
     let levelIdx = 0;
     let robotX = LEVELS[0].startX;
-    let moveCount = 0;
+    let robotY = H / 2;
+    let robotDir = 0;
+    let actionIdx = 0;
+    let animating = false;
 
-    // ── DRAW ─────────────────────────────────────────────────────────
+    // ── DRAW ─────────────────────────────────────────────────────
     function draw() {
-      // Clear
-      ctx.fillStyle = 'rgba(7, 9, 26, 0.8)';
+      // Background
+      ctx.fillStyle = 'rgba(4,6,15,0.3)';
       ctx.fillRect(0, 0, W, H);
 
-      // Ground
-      ctx.fillStyle = '#1e3560';
-      ctx.fillRect(0, H - 80, W, 80);
+      // Grid
+      ctx.strokeStyle = 'rgba(26,46,82,0.3)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < W; i += 50) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, H);
+        ctx.stroke();
+      }
 
-      // Goal marker
+      // Ground line
+      ctx.strokeStyle = 'rgba(26,46,82,0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, H / 2 + 60);
+      ctx.lineTo(W, H / 2 + 60);
+      ctx.stroke();
+
+      // Goal
       const level = LEVELS[levelIdx];
-      ctx.fillStyle = 'rgba(74, 222, 128, 0.3)';
-      ctx.fillRect(level.targetX - 40, H - 100, 80, 100);
-      ctx.fillStyle = '#4ade80';
-      ctx.font = 'bold 24px Arial';
+      ctx.fillStyle = 'rgba(0,255,136,0.15)';
+      ctx.fillRect(level.goal - 50, H / 2 - 80, 100, 160);
+      ctx.fillStyle = '#00ff88';
+      ctx.font = 'bold 40px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('🎯', level.targetX, H - 70);
+      ctx.fillText('🎯', level.goal, H / 2);
+
+      // Particles
+      particles.forEach((p, i) => {
+        p.update();
+        p.draw(ctx);
+        if (p.life < 0.1) particles.splice(i, 1);
+      });
 
       // Robot
-      drawRobot(robotX, H - 100);
+      drawRobot(robotX, robotY, robotDir);
 
-      // Glow effect around robot
-      ctx.strokeStyle = `rgba(56, 189, 248, ${moveCount > 0 ? 0.6 : 0.2})`;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(robotX + 20, H - 80, 50, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Info text
-      ctx.fillStyle = '#7ea8d8';
-      ctx.font = '13px Nunito';
+      // Info
+      ctx.fillStyle = '#7a8fa8';
+      ctx.font = '14px Nunito';
       ctx.textAlign = 'left';
-      ctx.fillText(`Progress: ${moveCount}/${level.controls.length}`, 20, 30);
+      ctx.fillText(`Progress: ${actionIdx}/${level.actions.length}`, 20, 30);
     }
 
-    function drawRobot(x, y) {
-      // Head
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(x + 5, y - 30, 30, 30);
-      // Eye
-      ctx.fillStyle = '#0a0e24';
-      ctx.fillRect(x + 10, y - 25, 8, 8);
+    function drawRobot(x, y, dir) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate((dir * Math.PI) / 180);
+
+      // Glow
+      ctx.fillStyle = 'rgba(0,212,255,0.1)';
+      ctx.beginPath();
+      ctx.arc(0, 0, 60, 0, Math.PI * 2);
+      ctx.fill();
+
       // Body
-      ctx.fillStyle = '#0ea5e9';
-      ctx.fillRect(x, y, 40, 25);
-      // Wheel
-      ctx.fillStyle = '#1e3560';
+      ctx.fillStyle = '#0099dd';
+      ctx.fillRect(-20, -25, 40, 50);
+
+      // Head
+      ctx.fillStyle = '#00d4ff';
       ctx.beginPath();
-      ctx.arc(x + 10, y + 30, 8, 0, Math.PI * 2);
+      ctx.arc(0, -35, 15, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+
+      // Eye
+      ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(x + 30, y + 30, 8, 0, Math.PI * 2);
+      ctx.arc(5, -37, 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.stroke();
+
+      // Direction indicator
+      ctx.fillStyle = '#ffaa00';
+      ctx.beginPath();
+      ctx.moveTo(0, -50);
+      ctx.lineTo(-8, -35);
+      ctx.lineTo(8, -35);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
     }
 
-    // ── LEVEL LOGIC ──────────────────────────────────────────────────
+    // ── GAME LOGIC ───────────────────────────────────────────────
     function loadLevel() {
       const level = LEVELS[levelIdx];
-      
-      // Update header
+
       document.getElementById('level-num').textContent = levelIdx + 1;
-      document.getElementById('level-title').textContent = level.title;
-      
-      // Update lesson
       document.getElementById('les-text').textContent = level.desc;
       document.getElementById('les-code').textContent = level.code;
       document.getElementById('les-hint').textContent = level.hint;
 
-      // Update controls
+      // Build action buttons
       const controlsArea = document.getElementById('controls-area');
       controlsArea.innerHTML = '';
-      level.controls.forEach((action, idx) => {
+
+      level.actions.forEach((action, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.textContent = `${idx + 1}️⃣ Move Forward`;
+        btn.className = 'action-btn';
+        btn.textContent = action.label;
+        btn.disabled = idx > actionIdx;
         btn.onclick = () => performAction(action, idx);
-        btn.disabled = idx !== moveCount || moveCount >= level.controls.length;
         btn.dataset.idx = idx;
         controlsArea.appendChild(btn);
       });
 
-      // Update dots
+      // Update level dots
       for (let i = 0; i < 4; i++) {
         const dot = document.getElementById('dot-' + i);
         dot.className = 'ldot' + (i < levelIdx ? ' done' : i === levelIdx ? ' cur' : '');
       }
 
-      // Reset robot
+      // Reset
       robotX = level.startX;
-      moveCount = 0;
+      robotY = H / 2;
+      robotDir = level.startDir || 0;
+      actionIdx = 0;
+      animating = false;
+      updateProgress();
       draw();
     }
 
     function performAction(action, expectedIdx) {
-      if (action !== 'move' || expectedIdx !== moveCount) return;
+      if (animating || expectedIdx !== actionIdx) return;
 
-      // Move robot
-      robotX += 100;
-      moveCount++;
+      animating = true;
 
-      // Animate
-      const animDuration = 400;
-      const startX = robotX - 100;
+      if (action.type === 'move') {
+        moveRobot();
+      } else if (action.type === 'turn') {
+        turnRobot();
+      }
+    }
+
+    function moveRobot() {
+      const duration = 500;
+      const startX = robotX;
+      const startY = robotY;
       const startTime = Date.now();
+      const dist = 100;
 
-      function animFrame() {
+      function frame() {
         const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / animDuration, 1);
-        robotX = startX + (100 * progress);
+        const progress = Math.min(elapsed / duration, 1);
+
+        const moveX = Math.cos((robotDir * Math.PI) / 180) * dist * progress;
+        const moveY = Math.sin((robotDir * Math.PI) / 180) * dist * progress;
+
+        robotX = startX + moveX;
+        robotY = startY + moveY;
+
         draw();
 
         if (progress < 1) {
-          requestAnimationFrame(animFrame);
+          requestAnimationFrame(frame);
         } else {
-          robotX = startX + 100;
+          robotX = startX + Math.cos((robotDir * Math.PI) / 180) * dist;
+          robotY = startY + Math.sin((robotDir * Math.PI) / 180) * dist;
           draw();
-          updateControlButtons();
+          createParticles(robotX, robotY, 8, 'rgb(0,212,255)');
 
-          // Check win
-          const level = LEVELS[levelIdx];
-          if (moveCount === level.controls.length && robotX >= level.targetX - 30) {
-            setTimeout(showWin, 400);
-          }
+          finishAction();
         }
       }
-      animFrame();
+
+      frame();
     }
 
-    function updateControlButtons() {
+    function turnRobot() {
+      const duration = 400;
+      const startTime = Date.now();
+      const startDir = robotDir;
+
+      function frame() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        robotDir = startDir + 90 * progress;
+
+        draw();
+
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          robotDir = startDir + 90;
+          draw();
+          createParticles(robotX, robotY, 6, 'rgb(255,170,0)');
+
+          finishAction();
+        }
+      }
+
+      frame();
+    }
+
+    function finishAction() {
+      actionIdx++;
+      animating = false;
+
+      setTimeout(() => {
+        updateProgress();
+        const level = LEVELS[levelIdx];
+
+        if (actionIdx === level.actions.length) {
+          checkWin();
+        } else {
+          const btns = document.querySelectorAll('.action-btn');
+          btns.forEach((btn, i) => {
+            btn.disabled = i >= actionIdx;
+            if (i === actionIdx) btn.focus();
+          });
+        }
+
+        draw();
+      }, 200);
+    }
+
+    function updateProgress() {
       const level = LEVELS[levelIdx];
-      document.querySelectorAll('#controls-area .btn').forEach((btn, idx) => {
-        btn.disabled = idx !== moveCount || moveCount >= level.controls.length;
-      });
+      const pct = Math.round((actionIdx / level.actions.length) * 100);
+
+      document.getElementById('prog-text').textContent = `${actionIdx}/${level.actions.length} actions`;
+      document.getElementById('prog-pct').textContent = `${pct}%`;
+      document.getElementById('prog-bar').style.width = pct + '%';
     }
 
-    function showWin() {
+    function checkWin() {
       localStorage.setItem('bs_game_completed_coding-0-basics', 'true');
-      document.getElementById('modal-emoji').textContent = '🎉';
-      document.getElementById('modal-title').textContent = levelIdx === 3 ? 'You\'re Ready!' : 'Great Job!';
-      document.getElementById('modal-msg').textContent = levelIdx === 3 
-        ? 'You\'ve mastered the basics. Ready for Code Quest?' 
-        : 'Next level unlocked!';
-      document.getElementById('next-btn').textContent = levelIdx === 3 ? '🚀 Continue to Code Quest' : 'Next Level →';
+
+      const isLast = levelIdx === LEVELS.length - 1;
+      document.getElementById('modal-emoji').textContent = isLast ? '🚀' : '⭐';
+      document.getElementById('modal-title').textContent = isLast ? 'You\'re Ready!' : 'Level Complete!';
+      document.getElementById('modal-msg').textContent = isLast
+        ? 'You\'ve mastered the basics. Ready for Code Quest?'
+        : 'Great job! Next level coming up...';
+      document.getElementById('next-btn').textContent = isLast ? '🚀 Continue to Code Quest' : 'Next Level →';
+
       document.getElementById('overlay').classList.add('show');
     }
 
     document.getElementById('next-btn').addEventListener('click', () => {
       document.getElementById('overlay').classList.remove('show');
+
       if (levelIdx < LEVELS.length - 1) {
         levelIdx++;
         loadLevel();
@@ -563,7 +879,6 @@
       }
     });
 
-    // ── INIT ─────────────────────────────────────────────────────────
     loadLevel();
   </script>
 
