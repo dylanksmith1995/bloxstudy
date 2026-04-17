@@ -1253,7 +1253,7 @@ function nextLevel() {
     levelIdx++;
     loadLevel();
   } else {
-    // Final screen
+    // Final screen — mark game as completed
     document.getElementById('win-title').textContent  = '🚀 You\'re a Real Coder!';
     document.getElementById('win-badge').textContent  = 'All 4 Levels Complete! 🏆';
     document.getElementById('win-text').textContent   = 'You finished all 4 levels using functions, loops, and sequences — the three foundations of ALL programming. Every app, every game, every website uses exactly what you just learned. You\'re amazing!';
@@ -1261,6 +1261,8 @@ function nextLevel() {
     document.getElementById('win-overlay').classList.add('open');
     spawnParticles();
     spawnParticles();
+    // Mark game as completed in localStorage
+    localStorage.setItem('bs_game_completed_coding-1-code-quest', 'true');
   }
 }
 

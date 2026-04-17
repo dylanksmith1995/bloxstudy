@@ -54,7 +54,7 @@
 
       <div class="games-grid">
 
-        <div class="game-card" onclick="launchGame('Code Quest', 'games/code-quest.html')">
+        <div class="game-card" id="game-coding-1-code-quest">
           <div class="game-banner" style="background: linear-gradient(135deg,#1e40af,#0ea5e9);">🤖</div>
           <div class="game-body">
             <h3>Code Quest</h3>
@@ -62,26 +62,26 @@
             <span class="game-tag">Coding</span>
             <span class="game-tag">Ages 7–12</span>
             <div class="mt-sm">
-              <button class="btn btn-primary btn-sm btn-full">▶ Play Now</button>
+              <button class="btn btn-primary btn-sm btn-full" onclick="launchGame('coding-1-code-quest', 'games/coding-1-code-quest.html')">▶ Play Now</button>
             </div>
           </div>
         </div>
 
-        <div class="game-card" style="border: 2px dashed var(--gray-300); opacity:0.6; cursor:default;">
-          <div class="game-banner" style="background:var(--gray-100); font-size:2rem;">🔢</div>
+        <div class="game-card" id="game-coding-2-coming">
+          <div class="game-banner" style="background:var(--gray-100); font-size:2rem;">🔐</div>
           <div class="game-body">
-            <h3>Math Quest</h3>
-            <p>Solve equations and conquer maths challenges. Coming soon!</p>
-            <span class="game-tag" style="background:rgba(156,163,175,0.2); color:var(--gray-600);">Coming Soon</span>
+            <h3 style="color:#9ca3af;">Locked</h3>
+            <p style="color:#9ca3af; font-size:0.9rem;">Complete <strong>Code Quest</strong> first to unlock more coding challenges!</p>
+            <span class="game-tag" style="background:rgba(156,163,175,0.2); color:var(--gray-600);">Locked</span>
           </div>
         </div>
 
-        <div class="game-card" style="border: 2px dashed var(--gray-300); opacity:0.6; cursor:default;">
-          <div class="game-banner" style="background:var(--gray-100); font-size:2rem;">🔬</div>
+        <div class="game-card" id="game-coding-3-coming">
+          <div class="game-banner" style="background:var(--gray-100); font-size:2rem;">🔐</div>
           <div class="game-body">
-            <h3>Science Lab</h3>
-            <p>Conduct experiments and explore the world of science. Coming soon!</p>
-            <span class="game-tag" style="background:rgba(156,163,175,0.2); color:var(--gray-600);">Coming Soon</span>
+            <h3 style="color:#9ca3af;">Locked</h3>
+            <p style="color:#9ca3af; font-size:0.9rem;">Complete <strong>Code Quest</strong> first to unlock more coding challenges!</p>
+            <span class="game-tag" style="background:rgba(156,163,175,0.2); color:var(--gray-600);">Locked</span>
           </div>
         </div>
 
@@ -168,10 +168,54 @@
   });
 
   // ── Launch game ────────────────────────────────────────────
-  function launchGame(name, url) {
-    showToast(`🎮 Launching ${name}…`, 'success');
+  function launchGame(codename, url) {
+    const gameName = codename.split('-').slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    showToast(`🎮 Launching ${gameName}…`, 'success');
     setTimeout(() => window.location.href = url, 600);
   }
+
+  // ── Game Progression System ─────────────────────────────────
+  // Check which games are unlocked based on completion
+  function updateGameUnlocks() {
+    // Game progression map: {codename: prerequisite_codename_or_null}
+    const gameFlow = {
+      'coding-1-code-quest': null, // Always unlocked
+      'coding-2-advanced-quest': 'coding-1-code-quest',
+      'coding-3-expert-quest': 'coding-2-advanced-quest',
+    };
+
+    // Check each game's prerequisite
+    Object.entries(gameFlow).forEach(([codename, prereq]) => {
+      const cardEl = document.getElementById(`game-${codename}`);
+      if (!cardEl) return; // Card doesn't exist yet
+      
+      if (prereq === null) {
+        // No prerequisite — always unlocked
+        cardEl.style.opacity = '1';
+        cardEl.style.pointerEvents = 'auto';
+      } else {
+        const isPrereqComplete = localStorage.getItem(`bs_game_completed_${prereq}`) === 'true';
+        if (isPrereqComplete) {
+          // Prerequisite met — unlock this game
+          cardEl.style.opacity = '1';
+          cardEl.style.pointerEvents = 'auto';
+          // Update UI to show it's now playable
+          cardEl.querySelector('.game-banner').style.filter = 'none';
+        } else {
+          // Prerequisite not met — keep locked
+          cardEl.style.opacity = '0.6';
+          cardEl.style.pointerEvents = 'none';
+          cardEl.style.cursor = 'not-allowed';
+        }
+      }
+    });
+  }
+
+  // Check on page load and whenever page becomes visible
+  updateGameUnlocks();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updateGameUnlocks();
+  });
 </script>
 </body>
 </html>
