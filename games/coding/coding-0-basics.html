@@ -1,459 +1,175 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Code Basics — BloxStudy</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Basics  BloxStudy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:      #04060f;
-      --panel:   #0a0f22;
-      --panel2:  #0f1629;
-      --border:  #1a2e52;
-      --accent:  #00d4ff;
-      --accent2: #0099dd;
-      --green:   #00ff88;
-      --red:     #ff4466;
-      --amber:   #ffaa00;
-      --text:    #e8eef8;
-      --muted:   #7a8fa8;
-      --dark:    #030609;
+      --bg:      #07091a;
+      --panel:   #0d1530;
+      --panel2:  #111e3a;
+      --border:  #1e3560;
+      --accent:  #38bdf8;
+      --accent2: #818cf8;
+      --green:   #4ade80;
+      --yellow:  #fbbf24;
+      --red:     #f87171;
+      --text:    #e2e8f0;
+      --muted:   #6b7280;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { min-height:100%; }
 
     body {
-      background: linear-gradient(135deg, var(--dark) 0%, var(--bg) 100%);
+      background: var(--bg);
       color: var(--text);
       font-family: 'Fredoka One', sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      user-select:none;
     }
 
-    /* ── HEADER ─────────────────────────────────────────────────── */
     #hdr {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      height: 60px;
-      background: linear-gradient(90deg, rgba(10,15,34,0.8) 0%, rgba(15,22,41,0.8) 100%);
-      border-bottom: 2px solid var(--border);
-      flex-shrink: 0;
-      gap: 16px;
-      backdrop-filter: blur(10px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 24px;
+      height:56px;
+      background: linear-gradient(90deg, #0a1228 0%, #0f1d3a 100%);
+      border-bottom:2px solid var(--border);
+      gap:12px;
     }
+    .logo { display:flex; align-items:center; gap:8px; font-size:1.2rem; color:var(--accent); text-shadow:0 0 18px rgba(56,189,248,0.5); }
+    #hdr-center { display:flex; align-items:center; gap:10px; }
+    #level-badge { background: linear-gradient(135deg, #0ea5e9, #6366f1); color:white; padding:4px 12px; border-radius:20px; font-size:0.82rem; }
+    #level-title-hdr { font-size:0.88rem; color:#7ea8d8; }
+    #level-dots { display:flex; gap:6px; align-items:center; }
+    .ldot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all .3s ease; }
+    .ldot.done { background:var(--green); box-shadow:0 0 8px rgba(74,222,128,.35); }
+    .ldot.cur { background:var(--accent); box-shadow:0 0 8px rgba(56,189,248,.35); }
+    .brand { color:var(--muted); font-size:0.82rem; }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.2rem;
-      color: var(--accent);
-      text-shadow: 0 0 20px rgba(0,212,255,0.5);
-      font-weight: 700;
+    #main { flex:1; display:grid; grid-template-columns:1fr 400px; overflow:hidden; }
+    #maze-panel {
+      position:relative;
+      background: radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 38%), radial-gradient(circle at right bottom, rgba(74,222,128,.14), transparent 32%), #0d1530;
+      border-right:2px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      overflow:hidden;
     }
-
-    #hdr-center {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex: 1;
-      justify-content: center;
-    }
-
-    #level-badge {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-      color: #000;
-      padding: 6px 16px;
-      border-radius: 24px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      box-shadow: 0 0 16px rgba(0,212,255,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-    }
-
-    #level-title {
-      font-size: 0.88rem;
-      color: var(--muted);
-      letter-spacing: 0.5px;
-    }
-
-    #level-dots {
-      display: flex;
-      gap: 7px;
-      align-items: center;
-    }
-
-    .ldot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--border);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
-    }
-
-    .ldot.done {
-      background: var(--green);
-      box-shadow: 0 0 12px rgba(0,255,136,0.5);
-    }
-
-    .ldot.cur {
-      background: var(--accent);
-      box-shadow: 0 0 16px rgba(0,212,255,0.6);
-      transform: scale(1.2);
-    }
-
-    #hdr-back {
-      color: var(--muted);
-      font-size: 0.85rem;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.3s;
-      padding: 6px 12px;
-      border-radius: 6px;
-    }
-
-    #hdr-back:hover {
-      background: var(--panel);
-      color: var(--accent);
-    }
-
-    /* ── MAIN LAYOUT ─────────────────────────────────────────────── */
-    #main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 480px;
-      gap: 16px;
-      padding: 16px;
-      overflow: hidden;
-    }
-
-    /* ── CANVAS AREA ─────────────────────────────────────────────── */
-    #canvas-container {
-      background: linear-gradient(135deg, rgba(15,22,41,0.6) 0%, rgba(10,15,34,0.6) 100%);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
-    #canvas-container::before {
-      content: '';
-      position: absolute;
-      inset: 0;
+    #maze-panel::before {
+      content:'';
+      position:absolute;
+      inset:0;
       background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(0,212,255,0.08) 0%, transparent 100%),
-        radial-gradient(1px 1px at 40% 70%, rgba(0,255,136,0.06) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 15%, rgba(0,212,255,0.06) 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 55%, rgba(255,170,0,0.04) 0%, transparent 100%);
-      pointer-events: none;
-      z-index: 1;
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.07), transparent 20%),
+        radial-gradient(circle at 80% 80%, rgba(56,189,248,.05), transparent 18%);
+      pointer-events:none;
     }
+    #maze-canvas { border-radius:16px; background:#020617; border:2px solid #1e3560; box-shadow:0 0 0 1px rgba(56,189,248,.12); }
 
-    canvas {
-      display: block;
-      position: relative;
-      z-index: 2;
-      max-width: 100%;
-      max-height: 100%;
+    #code-panel {
+      display:flex;
+      flex-direction:column;
+      background:var(--panel);
+      border-left:2px solid var(--border);
+      padding:18px 16px;
+      gap:12px;
+      overflow:hidden;
     }
+    .panel-label { display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.72rem; text-transform:uppercase; color:var(--muted); letter-spacing:.08em; }
+    .panel-label span { color:#2a4265; }
 
-    /* ── RIGHT PANEL ─────────────────────────────────────────────── */
-    #right-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      overflow: hidden;
-      min-width: 0;
+    #editor-wrap {
+      display:flex;
+      background:#040d1c;
+      border:2px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      min-height:180px;
+      max-height:260px;
     }
+    #line-nums { padding:14px 10px; font-family:'JetBrains Mono', monospace; font-size:13px; color:#1e3a5f; background:#030b18; text-align:right; border-right:1px solid #0d2040; user-select:none; }
+    #code-editor {
+      flex:1;
+      padding:14px 14px;
+      background:transparent;
+      color:#7dd3fc;
+      border:none;
+      outline:none;
+      font-family:'JetBrains Mono', monospace;
+      font-size:13px;
+      line-height:1.8;
+      resize:none;
+      caret-color:#38bdf8;
+    }
+    #code-editor::placeholder { color:#112236; }
 
-    .panel-box {
-      background: linear-gradient(135deg, rgba(10,15,34,0.8) 0%, rgba(15,22,41,0.8) 100%);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-      overflow: auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
+    #actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { border:none; border-radius:12px; padding:12px 16px; font-family:'Fredoka One', sans-serif; font-size:0.92rem; cursor:pointer; transition:transform .14s ease, filter .14s ease; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.08); }
+    .btn:active:not(:disabled) { transform:translateY(0); filter:brightness(.92); }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
+    #run-btn { background:linear-gradient(135deg, #22c55e, #16a34a); color:#fff; flex:1; }
+    #reset-btn, #hint-btn { background:#0f1d38; color:#7ea8d8; border:1.5px solid #1e3560; }
+    #answer-btn { background:#1a0f00; color:#f97316; border:1.5px solid #7c3a00; }
 
-    .panel-box::-webkit-scrollbar {
-      width: 6px;
-    }
+    #out-wrap { display:flex; flex-direction:column; overflow:hidden; min-height:90px; max-height:150px; background:#040d1c; border:2px solid var(--border); border-radius:16px; }
+    #out-header { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#07111f; border-bottom:1px solid #0d2040; font-size:0.7rem; font-family:'JetBrains Mono', monospace; color:#1e3a5f; }
+    .out-dot { width:8px; height:8px; border-radius:50%; }
+    #output-log { flex:1; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:12px; line-height:1.7; overflow-y:auto; }
+    .log-info { color:#38bdf8; }
+    .log-ok { color:#4ade80; }
+    .log-error { color:#f87171; }
+    .log-hint { color:#fbbf24; }
 
-    .panel-box::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    #tut-bar { display:flex; align-items:center; gap:14px; border-top:2px solid var(--border); padding:10px 18px; background:linear-gradient(90deg, #07111f 0%, #0c1630 100%); }
+    #tut-robot { font-size:1.7rem; }
+    #tut-text { display:flex; flex-direction:column; gap:4px; }
+    #tut-title { font-size:0.95rem; color:#e2e8f0; }
+    #tut-body { font-size:0.84rem; color:#94a3b8; line-height:1.6; }
+    #tut-code { font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:#7dd3fc; margin-left:auto; }
 
-    .panel-box::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 3px;
-    }
+    /* Drag blocks */
+    #block-palette, #block-sequence { background:#08162d; border:2px solid var(--border); border-radius:16px; min-height:110px; padding:12px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start; }
+    .code-block-item { padding:10px 14px; border-radius:14px; background:#0f1d38; border:1px solid #1e3560; color:#7dd3fc; font-family:'JetBrains Mono', monospace; font-size:0.85rem; cursor:grab; user-select:none; }
+    .code-block-item:active { cursor:grabbing; }
+    .code-block-item.dragging { opacity:.45; }
+    .sequence-slot { background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.12); border-radius:14px; width:100%; min-height:52px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px; }
+    .sequence-slot.empty { color:rgba(255,255,255,.35); }
 
-    .panel-title {
-      font-size: 0.95rem;
-      color: var(--accent);
-      margin-bottom: 14px;
-      text-shadow: 0 0 12px rgba(0,212,255,0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 700;
-    }
+    #level-message { font-family:'Nunito', sans-serif; font-size:0.92rem; color:#cbd5e1; margin-top:8px; }
 
-    .lesson-text {
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.88rem;
-      line-height: 1.7;
-      color: var(--text);
-      margin-bottom: 14px;
-      font-weight: 500;
-    }
+    /* overlays */
+    #hint-overlay, #answer-overlay, #win-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; z-index:99; }
+    .overlay.show { display:flex; }
+    .overlay-card { background:linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%); border:2px solid var(--border); border-radius:18px; padding:28px 32px; width:min(92%,420px); text-align:center; }
+    .overlay-card h2 { font-size:1.45rem; margin-bottom:12px; }
+    .overlay-card p { color:#94a3b8; line-height:1.7; margin-bottom:20px; }
+    .overlay-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .overlay-btn { border:none; border-radius:12px; padding:12px 18px; cursor:pointer; font-family:'Fredoka One', sans-serif; font-size:0.95rem; transition:transform .14s ease; }
+    .overlay-btn:hover { transform:translateY(-1px); }
+    .overlay-btn.primary { background:linear-gradient(135deg, #22c55e, #16a34a); color:#000; }
+    .overlay-btn.secondary { background:#0f1d38; color:#7ea8d8; }
 
-    .code-block {
-      background: linear-gradient(135deg, rgba(3,6,15,0.8) 0%, rgba(10,15,34,0.6) 100%);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      color: var(--green);
-      margin-bottom: 14px;
-      overflow-x: auto;
-      white-space: pre;
-      line-height: 1.6;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
-    }
-
-    .hint-box {
-      background: linear-gradient(135deg, rgba(255,170,0,0.1) 0%, rgba(255,170,0,0.05) 100%);
-      border-left: 3px solid var(--amber);
-      padding: 10px 12px;
-      border-radius: 6px;
-      margin-top: 12px;
-    }
-
-    .hint-label {
-      font-size: 0.7rem;
-      color: var(--amber);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-      font-weight: 700;
-    }
-
-    .hint-text {
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.82rem;
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    /* ── CONTROLS ────────────────────────────────────────────────── */
-    #controls-box {
-      flex: unset;
-      max-height: fit-content;
-    }
-
-    #controls-area {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .action-btn {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-      color: #000;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-family: 'Fredoka One', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 12px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-      position: relative;
-      overflow: hidden;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .action-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.1);
-      transition: left 0.3s;
-    }
-
-    .action-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,212,255,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-
-    .action-btn:active:not(:disabled) {
-      transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-    }
-
-    .action-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .action-btn.completed {
-      background: linear-gradient(135deg, var(--green) 0%, #00cc66 100%);
-      color: #000;
-      box-shadow: 0 4px 12px rgba(0,255,136,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-    }
-
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 12px;
-      margin-top: 12px;
-      border-top: 1px solid var(--border);
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .progress-bar {
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-top: 6px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--green) 100%);
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 0 8px rgba(0,212,255,0.4);
-    }
-
-    /* ── MODAL ───────────────────────────────────────────────────── */
-    #overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
-    }
-
-    #overlay.show {
-      display: flex;
-    }
-
-    #modal {
-      background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
-      border: 2px solid var(--accent);
-      border-radius: 16px;
-      padding: 50px 60px;
-      text-align: center;
-      max-width: 420px;
-      box-shadow: 0 20px 60px rgba(0,212,255,0.2), 0 0 40px rgba(0,255,136,0.1);
-      animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    @keyframes modalPop {
-      0% {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    #modal-emoji {
-      font-size: 4rem;
-      margin-bottom: 20px;
-      animation: bounce 0.6s ease-out;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    #modal-title {
-      font-size: 1.8rem;
-      color: var(--green);
-      margin-bottom: 14px;
-      text-shadow: 0 0 20px rgba(0,255,136,0.3);
-      font-weight: 700;
-    }
-
-    #modal-msg {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
-      color: var(--text);
-      margin-bottom: 28px;
-      line-height: 1.7;
-      font-weight: 500;
-    }
-
-    .modal-btn {
-      background: linear-gradient(135deg, var(--green) 0%, #00cc66 100%);
-      color: #000;
-      border: none;
-      padding: 14px 40px;
-      border-radius: 8px;
-      font-family: 'Fredoka One', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 16px rgba(0,255,136,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      width: 100%;
-    }
-
-    .modal-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,255,136,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-
-    .modal-btn:active {
-      transform: translateY(0);
-    }
+    #hint-steps { text-align:left; margin:0 auto; max-width:320px; }
+    #hint-steps li { margin-bottom:10px; color:#cbd5e1; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <div id="hdr">
-    <div class="logo">🎓 BloxStudy</div>
+    <div class="logo"> Code Basics</div>
     <div id="hdr-center">
-      <div id="level-badge">Level <span id="level-num">1</span>/4</div>
-      <div id="level-title">Learn Coding Basics</div>
+      <span id="level-badge">Level 1</span>
+      <span id="level-title-hdr">What is a Computer?</span>
       <div id="level-dots">
         <div class="ldot cur" id="dot-0"></div>
         <div class="ldot" id="dot-1"></div>
@@ -461,426 +177,289 @@
         <div class="ldot" id="dot-3"></div>
       </div>
     </div>
-    <a href="../../dashboard.html" id="hdr-back">← Back</a>
+    <div class="brand">BloxStudy</div>
   </div>
 
-  <!-- MAIN -->
   <div id="main">
-    <!-- CANVAS -->
-    <div id="canvas-container">
-      <canvas id="c" width="900" height="560"></canvas>
+    <div id="maze-panel">
+      <canvas id="maze-canvas" width="540" height="360"></canvas>
     </div>
 
-    <!-- RIGHT PANEL -->
-    <div id="right-panel">
-      <!-- LESSON -->
-      <div class="panel-box">
-        <div class="panel-title">📖 Lesson</div>
-        <div class="lesson-text" id="les-text">Loading...</div>
-        <div class="code-block" id="les-code"></div>
-        <div class="hint-box">
-          <div class="hint-label">💡 Hint</div>
-          <div class="hint-text" id="les-hint">Pay attention to what happens on the screen!</div>
-        </div>
-      </div>
+    <div id="code-panel">
+      <div class="panel-label"> <span>Instructions</span></div>
+      <div id="lesson-text" style="font-family:'Nunito',sans-serif;font-size:0.92rem;line-height:1.7;color:#dbeafe;">Loading level...</div>
 
-      <!-- CONTROLS -->
-      <div class="panel-box" id="controls-box">
-        <div class="panel-title">🎮 Actions</div>
-        <div id="controls-area"></div>
-        <div class="progress-info">
-          <span id="prog-text">0/1 actions</span>
-          <div style="flex:1; margin: 0 10px;">
-            <div class="progress-bar">
-              <div class="progress-fill" id="prog-bar" style="width:0%"></div>
-            </div>
-          </div>
-          <span id="prog-pct">0%</span>
+      <div class="panel-label"> <span>Guide Blox</span></div>
+      <div id="level-controls"></div>
+
+      <div id="level-message"></div>
+
+      <div class="panel-label"> <span>Output</span></div>
+      <div id="out-wrap">
+        <div id="out-header">
+          <div class="out-dot" style="background:#f87171"></div>
+          <div class="out-dot" style="background:#fbbf24"></div>
+          <div class="out-dot" style="background:#4ade80"></div>
+          &nbsp; BLOX LOG
         </div>
+        <div id="output-log"><span class="log-info"> Welcome! Follow the arrows to teach Blox how computers need instructions.</span></div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL -->
-  <div id="overlay">
-    <div id="modal">
-      <div id="modal-emoji">🎉</div>
-      <div id="modal-title">Perfect!</div>
-      <div id="modal-msg">You did it!</div>
-      <button class="modal-btn" id="next-btn">Continue →</button>
+  <div id="tut-bar">
+    <div id="tut-robot"></div>
+    <div id="tut-text">
+      <div id="tut-title">Computers need instructions</div>
+      <div id="tut-body">Use the buttons or blocks to tell Blox exactly what to do.</div>
+    </div>
+    <div id="tut-code"></div>
+  </div>
+
+  <div id="hint-overlay" class="overlay">
+    <div class="overlay-card">
+      <h2>Need a hint?</h2>
+      <ul id="hint-steps"></ul>
+      <div class="overlay-btns">
+        <button class="overlay-btn secondary" onclick="closeHint()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="answer-overlay" class="overlay">
+    <div class="overlay-card">
+      <h2>Show the answer?</h2>
+      <p>This level is for learning, not memorizing. Try the hint first!</p>
+      <div class="overlay-btns">
+        <button class="overlay-btn secondary" onclick="closeAnswer()">Try hint</button>
+        <button class="overlay-btn primary" onclick="revealAnswer()">Show answer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="win-overlay" class="overlay">
+    <div class="overlay-card">
+      <h2 id="win-title">Nice work!</h2>
+      <p id="win-msg">You completed the level.</p>
+      <div class="overlay-btns">
+        <button class="overlay-btn secondary" onclick="closeWin()">Keep going</button>
+        <button class="overlay-btn primary" id="win-next">Next level</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('c');
+    const canvas = document.getElementById('maze-canvas');
     const ctx = canvas.getContext('2d');
     const W = canvas.width;
     const H = canvas.height;
 
-    // ── PARTICLES ────────────────────────────────────────────────
-    const particles = [];
-
-    class Particle {
-      constructor(x, y, vx, vy, color, size) {
-        this.x = x;
-        this.y = y;
-        this.vx = vx;
-        this.vy = vy;
-        this.color = color;
-        this.size = size;
-        this.life = 1;
-        this.decay = 0.98;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.1;
-        this.life *= this.decay;
-      }
-
-      draw(ctx) {
-        ctx.fillStyle = this.color.replace(')', `, ${this.life})`).replace('rgb', 'rgba');
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function createParticles(x, y, count, color) {
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i) / count;
-        const speed = 2 + Math.random() * 3;
-        particles.push(new Particle(
-          x + Math.cos(angle) * 10,
-          y + Math.sin(angle) * 10,
-          Math.cos(angle) * speed,
-          Math.sin(angle) * speed,
-          color,
-          2 + Math.random() * 2
-        ));
-      }
-    }
-
-    // ── LEVELS ──────────────────────────────────────────────────
     const LEVELS = [
       {
-        title: 'First Steps',
-        desc: 'Meet Blox! Press the button below to move forward.',
-        hint: 'Tap "Move Forward" and watch what happens!',
-        code: 'move()',
-        actions: [{ type: 'move', label: 'Move Forward' }],
-        goal: 400,
-        startX: 100,
+        title:'What is a Computer?',
+        theme:'Computers need instructions to know what to do.',
+        detail:'Click arrow buttons to guide Blox to the star.',
+        mode:'arrows',
+        start:{x:1,y:4,dir:0},
+        goal:{x:4,y:1},
+        sequence:['right','right','up'],
+        hint:['Press right to move Blox right.','Commands happen in order.','Reach the star to finish.'],
+        answer:['right','right','up'],
       },
       {
-        title: 'Two Moves',
-        desc: 'Press the button twice to reach the goal.',
-        hint: 'Press the same button again. Keep going!',
-        code: 'move()\nmove()',
-        actions: [
-          { type: 'move', label: 'Move Forward' },
-          { type: 'move', label: 'Move Forward' },
-        ],
-        goal: 300,
-        startX: 100,
+        title:'One Thing After Another',
+        theme:'Commands happen in order, one after another.',
+        detail:'Drag the blocks into the sequence from left to right.',
+        mode:'blocks',
+        start:{x:1,y:4,dir:0},
+        goal:{x:4,y:1},
+        blocks:['right','right','up'],
+        hint:['Drag blocks into the slot.','The order matters.','Then press Run Code.'],
+        answer:['right','right','up'],
       },
       {
-        title: 'Mix It Up',
-        desc: 'Now you have two actions! Turn first, then move forward.',
-        hint: 'Try turning before moving!',
-        code: 'turn()\nmove()',
-        actions: [
-          { type: 'turn', label: 'Turn Right' },
-          { type: 'move', label: 'Move Forward' },
-        ],
-        goal: 400,
-        startX: 100,
-        startDir: 90,
+        title:'Different Commands',
+        theme:'Different words tell the computer to do different things.',
+        detail:'Use the direction buttons to build a path.',
+        mode:'buttons',
+        start:{x:1,y:4,dir:0},
+        goal:{x:4,y:1},
+        sequence:['right','up','right'],
+        hint:['Try a new button for a new direction.','Right moves right, up moves up.','Sequence is important.'],
+        answer:['right','up','right'],
       },
       {
-        title: 'Master the Basics!',
-        desc: 'Use both actions to reach the goal. You\'re ready for Code Quest!',
-        hint: 'Combine turns and moves to navigate!',
-        code: 'turn()\nmove()\nturn()\nmove()',
-        actions: [
-          { type: 'turn', label: 'Turn Right' },
-          { type: 'move', label: 'Move Forward' },
-          { type: 'turn', label: 'Turn Right' },
-          { type: 'move', label: 'Move Forward' },
-        ],
-        goal: 500,
-        startX: 100,
-        startDir: 90,
-      },
+        title:'Code is Just Words',
+        theme:'Code is words that tell computers what to do.',
+        detail:'Build the visual sequence, then read the text commands.',
+        mode:'text',
+        start:{x:1,y:4,dir:0},
+        goal:{x:4,y:1},
+        blocks:['right','up','right'],
+        hint:['The text version shows your commands.','Code is just words.','Run it after building the sequence.'],
+        answer:['right','up','right'],
+      }
     ];
 
     let levelIdx = 0;
-    let robotX = LEVELS[0].startX;
-    let robotY = H / 2;
-    let robotDir = 0;
-    let actionIdx = 0;
-    let animating = false;
+    let state = { x:0,y:0,dir:0, path:[], executing:false };
+    let dragValue = null;
 
-    // ── DRAW ─────────────────────────────────────────────────────
-    function draw() {
-      // Background
-      ctx.fillStyle = 'rgba(4,6,15,0.3)';
-      ctx.fillRect(0, 0, W, H);
+    const levelText = document.getElementById('lesson-text');
+    const levelControls = document.getElementById('level-controls');
+    const tutTitle = document.getElementById('tut-title');
+    const tutBody = document.getElementById('tut-body');
+    const tutCode = document.getElementById('tut-code');
+    const levelMessage = document.getElementById('level-message');
+    const outputLog = document.getElementById('output-log');
+    const dotEls = [0,1,2,3].map(i=>document.getElementById('dot-'+i));
+    const levelBadge = document.getElementById('level-badge');
+    const levelTitleHdr = document.getElementById('level-title-hdr');
 
-      // Grid
-      ctx.strokeStyle = 'rgba(26,46,82,0.3)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < W; i += 50) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, H);
-        ctx.stroke();
-      }
+    const hintOverlay = document.getElementById('hint-overlay');
+    const answerOverlay = document.getElementById('answer-overlay');
+    const winOverlay = document.getElementById('win-overlay');
+    const hintSteps = document.getElementById('hint-steps');
+    const winTitle = document.getElementById('win-title');
+    const winMsg = document.getElementById('win-msg');
+    const winNext = document.getElementById('win-next');
 
-      // Ground line
-      ctx.strokeStyle = 'rgba(26,46,82,0.5)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, H / 2 + 60);
-      ctx.lineTo(W, H / 2 + 60);
-      ctx.stroke();
-
-      // Goal
-      const level = LEVELS[levelIdx];
-      ctx.fillStyle = 'rgba(0,255,136,0.15)';
-      ctx.fillRect(level.goal - 50, H / 2 - 80, 100, 160);
-      ctx.fillStyle = '#00ff88';
-      ctx.font = 'bold 40px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('🎯', level.goal, H / 2);
-
-      // Particles
-      particles.forEach((p, i) => {
-        p.update();
-        p.draw(ctx);
-        if (p.life < 0.1) particles.splice(i, 1);
-      });
-
-      // Robot
-      drawRobot(robotX, robotY, robotDir);
-
-      // Info
-      ctx.fillStyle = '#7a8fa8';
-      ctx.font = '14px Nunito';
-      ctx.textAlign = 'left';
-      ctx.fillText(`Progress: ${actionIdx}/${level.actions.length}`, 20, 30);
+    function log(message, cls='log-info') {
+      outputLog.innerHTML = `<span class="${cls}"> ${message}</span>`;
     }
 
-    function drawRobot(x, y, dir) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate((dir * Math.PI) / 180);
-
-      // Glow
-      ctx.fillStyle = 'rgba(0,212,255,0.1)';
-      ctx.beginPath();
-      ctx.arc(0, 0, 60, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Body
-      ctx.fillStyle = '#0099dd';
-      ctx.fillRect(-20, -25, 40, 50);
-
-      // Head
-      ctx.fillStyle = '#00d4ff';
-      ctx.beginPath();
-      ctx.arc(0, -35, 15, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Eye
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(5, -37, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Direction indicator
-      ctx.fillStyle = '#ffaa00';
-      ctx.beginPath();
-      ctx.moveTo(0, -50);
-      ctx.lineTo(-8, -35);
-      ctx.lineTo(8, -35);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.restore();
+    function drawGrid() {
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#07101f';
+      ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,255,255,0.08)';
+      for(let x=0;x<=6;x++){ ctx.beginPath(); ctx.moveTo(x*80,0); ctx.lineTo(x*80,H); ctx.stroke(); }
+      for(let y=0;y<=5;y++){ ctx.beginPath(); ctx.moveTo(0,y*80); ctx.lineTo(W,y*80); ctx.stroke(); }
     }
 
-    // ── GAME LOGIC ───────────────────────────────────────────────
-    function loadLevel() {
-      const level = LEVELS[levelIdx];
-
-      document.getElementById('level-num').textContent = levelIdx + 1;
-      document.getElementById('les-text').textContent = level.desc;
-      document.getElementById('les-code').textContent = level.code;
-      document.getElementById('les-hint').textContent = level.hint;
-
-      // Build action buttons
-      const controlsArea = document.getElementById('controls-area');
-      controlsArea.innerHTML = '';
-
-      level.actions.forEach((action, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'action-btn';
-        btn.textContent = action.label;
-        btn.disabled = idx > actionIdx;
-        btn.onclick = () => performAction(action, idx);
-        btn.dataset.idx = idx;
-        controlsArea.appendChild(btn);
-      });
-
-      // Update level dots
-      for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById('dot-' + i);
-        dot.className = 'ldot' + (i < levelIdx ? ' done' : i === levelIdx ? ' cur' : '');
-      }
-
-      // Reset
-      robotX = level.startX;
-      robotY = H / 2;
-      robotDir = level.startDir || 0;
-      actionIdx = 0;
-      animating = false;
-      updateProgress();
-      draw();
+    function drawMaze() {
+      const level=LEVELS[levelIdx];
+      drawGrid();
+      drawTarget(level.goal.x, level.goal.y);
+      drawPath();
+      drawBlox(state.x, state.y);
     }
 
-    function performAction(action, expectedIdx) {
-      if (animating || expectedIdx !== actionIdx) return;
+    function drawTarget(x,y){ ctx.fillStyle='rgba(74,222,128,0.25)'; ctx.fillRect(x*80+10,y*80+10,60,60); ctx.font='32px Arial'; ctx.fillStyle='#4ade80'; ctx.textAlign='center'; ctx.fillText('', x*80+40, y*80+50); }
+    function drawPath(){ if(!state.path.length) return; ctx.strokeStyle='rgba(56,189,248,0.5)'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(state.x*80+40,state.y*80+40); let x=state.x,y=state.y; state.path.forEach(dir=>{ if(dir==='right') x++; if(dir==='left') x--; if(dir==='up') y--; if(dir==='down') y++; ctx.lineTo(x*80+40,y*80+40); }); ctx.stroke(); }
+    function drawBlox(x,y){ ctx.fillStyle='#38bdf8'; ctx.fillRect(x*80+14,y*80+14,52,52); ctx.fillStyle='#0f172a'; ctx.fillRect(x*80+22,y*80+24,16,16); ctx.fillRect(x*80+42,y*80+24,16,16); ctx.fillStyle='#38bdf8'; ctx.fillRect(x*80+30,y*80+40,10,8); }
 
-      animating = true;
-
-      if (action.type === 'move') {
-        moveRobot();
-      } else if (action.type === 'turn') {
-        turnRobot();
-      }
+    function setupLevel(){
+      const level=LEVELS[levelIdx];
+      levelBadge.textContent=`Level ${levelIdx+1}`;
+      levelTitleHdr.textContent=level.title;
+      levelText.textContent=`${level.theme} ${level.detail}`;
+      tutTitle.textContent=level.title;
+      tutBody.textContent=level.theme;
+      tutCode.textContent=level.mode==='text'?'Text code shows the same commands':'Use the controls below to move Blox.';
+      levelMessage.textContent='';
+      state={ x:level.start.x, y:level.start.y, dir:level.start.dir, path:[], executing:false };
+      dotEls.forEach((dot,i)=>dot.className='ldot'+(i===levelIdx?' cur': i<levelIdx?' done':''));
+      renderControls();
+      log('Welcome! Follow the instructions to help Blox.', 'log-info');
+      drawMaze();
     }
 
-    function moveRobot() {
-      const duration = 500;
-      const startX = robotX;
-      const startY = robotY;
-      const startTime = Date.now();
-      const dist = 100;
-
-      function frame() {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        const moveX = Math.cos((robotDir * Math.PI) / 180) * dist * progress;
-        const moveY = Math.sin((robotDir * Math.PI) / 180) * dist * progress;
-
-        robotX = startX + moveX;
-        robotY = startY + moveY;
-
-        draw();
-
-        if (progress < 1) {
-          requestAnimationFrame(frame);
-        } else {
-          robotX = startX + Math.cos((robotDir * Math.PI) / 180) * dist;
-          robotY = startY + Math.sin((robotDir * Math.PI) / 180) * dist;
-          draw();
-          createParticles(robotX, robotY, 8, 'rgb(0,212,255)');
-
-          finishAction();
-        }
-      }
-
-      frame();
+    function renderControls(){
+      const level=LEVELS[levelIdx];
+      levelControls.innerHTML='';
+      if(level.mode==='arrows'){ renderArrowControls(); }
+      if(level.mode==='blocks'){ renderBlockBuilder(); }
+      if(level.mode==='buttons'){ renderButtonSequence(); }
+      if(level.mode==='text'){ renderTextBuilder(); }
     }
 
-    function turnRobot() {
-      const duration = 400;
-      const startTime = Date.now();
-      const startDir = robotDir;
-
-      function frame() {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        robotDir = startDir + 90 * progress;
-
-        draw();
-
-        if (progress < 1) {
-          requestAnimationFrame(frame);
-        } else {
-          robotDir = startDir + 90;
-          draw();
-          createParticles(robotX, robotY, 6, 'rgb(255,170,0)');
-
-          finishAction();
-        }
-      }
-
-      frame();
+    function renderArrowControls(){
+      const wrapper=document.createElement('div');
+      wrapper.style.display='grid';
+      wrapper.style.gridTemplateColumns='repeat(3,1fr)';
+      wrapper.style.gap='10px';
+      const blank=document.createElement('div');
+      const up=createBtn(' Up',()=>performStep('up'));
+      const blank2=document.createElement('div');
+      const left=createBtn(' Left',()=>performStep('left'));
+      const right=createBtn('Right ',()=>performStep('right'));
+      const down=createBtn(' Down',()=>performStep('down'));
+      wrapper.append(blank,up,blank2,left,right,down);
+      levelControls.append(wrapper);
+      const note=document.createElement('div'); note.textContent='Press the arrows to guide Blox one step at a time.'; levelControls.append(note);
     }
 
-    function finishAction() {
-      actionIdx++;
-      animating = false;
-
-      setTimeout(() => {
-        updateProgress();
-        const level = LEVELS[levelIdx];
-
-        if (actionIdx === level.actions.length) {
-          checkWin();
-        } else {
-          const btns = document.querySelectorAll('.action-btn');
-          btns.forEach((btn, i) => {
-            btn.disabled = i >= actionIdx;
-            if (i === actionIdx) btn.focus();
-          });
-        }
-
-        draw();
-      }, 200);
+    function renderBlockBuilder(){
+      const palette=document.createElement('div'); palette.id='block-palette';
+      ['right','right','up'].forEach(cmd=>{ palette.append(createBlock(cmd)); });
+      const sequence=document.createElement('div'); sequence.id='block-sequence'; sequence.className='sequence-slot empty'; sequence.textContent='Drop blocks here in order'; sequence.addEventListener('dragover',ev=>ev.preventDefault()); sequence.addEventListener('drop',handleDrop);
+      levelControls.append(palette,sequence,createActionRow('Run Code',executeSequence,'Reset',resetLevel,'Hint',showHint,'Answer',openAnswer));
     }
 
-    function updateProgress() {
-      const level = LEVELS[levelIdx];
-      const pct = Math.round((actionIdx / level.actions.length) * 100);
-
-      document.getElementById('prog-text').textContent = `${actionIdx}/${level.actions.length} actions`;
-      document.getElementById('prog-pct').textContent = `${pct}%`;
-      document.getElementById('prog-bar').style.width = pct + '%';
+    function renderButtonSequence(){
+      const toolbar=document.createElement('div'); toolbar.style.display='flex'; toolbar.style.flexWrap='wrap'; toolbar.style.gap='10px';
+      ['right','up','left','down'].forEach(dir=>{ toolbar.append(createBtn(dir.toUpperCase(),()=>addCommand(dir))); });
+      const sequence=document.createElement('div'); sequence.id='block-sequence'; sequence.className='sequence-slot empty'; sequence.textContent='Commands will appear here';
+      const bottom=createActionRow('Run Code',executeSequence,'Reset',resetLevel,'Hint',showHint,'Answer',openAnswer);
+      levelControls.append(toolbar,sequence,bottom);
     }
 
-    function checkWin() {
-      localStorage.setItem('bs_game_completed_coding-0-basics', 'true');
-
-      const isLast = levelIdx === LEVELS.length - 1;
-      document.getElementById('modal-emoji').textContent = isLast ? '🚀' : '⭐';
-      document.getElementById('modal-title').textContent = isLast ? 'You\'re Ready!' : 'Level Complete!';
-      document.getElementById('modal-msg').textContent = isLast
-        ? 'You\'ve mastered the basics. Ready for Code Quest?'
-        : 'Great job! Next level coming up...';
-      document.getElementById('next-btn').textContent = isLast ? '🚀 Continue to Code Quest' : 'Next Level →';
-
-      document.getElementById('overlay').classList.add('show');
+    function renderTextBuilder(){
+      const palette=document.createElement('div'); palette.id='block-palette'; ['right','up','right'].forEach(cmd=>{ palette.append(createBlock(cmd)); });
+      const sequence=document.createElement('div'); sequence.id='block-sequence'; sequence.className='sequence-slot empty'; sequence.textContent='Drop blocks here'; sequence.addEventListener('dragover',ev=>ev.preventDefault()); sequence.addEventListener('drop',handleDrop);
+      const codeView=document.createElement('div'); codeView.id='code-editor'; codeView.style.background='#020e20'; codeView.style.color='#7dd3fc'; codeView.style.padding='12px'; codeView.style.borderRadius='14px'; codeView.style.minHeight='88px'; codeView.style.whiteSpace='pre-wrap'; codeView.style.fontFamily='JetBrains Mono, monospace'; codeView.textContent='';
+      const bottom=createActionRow('Show Code',updateCodeView,'Run Code',executeSequence,'Reset',resetLevel);
+      levelControls.append(palette,sequence,codeView,bottom);
     }
 
-    document.getElementById('next-btn').addEventListener('click', () => {
-      document.getElementById('overlay').classList.remove('show');
+    function createBtn(label,fn){ const btn=document.createElement('button'); btn.className='btn'; btn.textContent=label; btn.onclick=fn; return btn; }
+    function createActionRow(...items){ const row=document.createElement('div'); row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,1fr)'; row.style.gap='10px'; for(let i=0;i<items.length;i+=2){ const btn=createBtn(items[i],items[i+1]); row.append(btn);} return row; }
 
-      if (levelIdx < LEVELS.length - 1) {
-        levelIdx++;
-        loadLevel();
-      } else {
-        window.location.href = '../../dashboard.html';
-      }
-    });
+    function createBlock(command){ const block=document.createElement('div'); block.className='code-block-item'; block.textContent=command.toUpperCase(); block.draggable=true; block.dataset.command=command; block.addEventListener('dragstart',(ev)=>{ ev.dataTransfer.setData('text/plain', command); block.classList.add('dragging'); }); block.addEventListener('dragend',()=>block.classList.remove('dragging')); return block; }
 
-    loadLevel();
+    function handleDrop(ev){ ev.preventDefault(); const data=ev.dataTransfer.getData('text/plain'); if(!data) return; addSequence(data); }
+
+    function addSequence(cmd){ const seq=document.getElementById('block-sequence'); if(!seq) return; if(seq.classList.contains('empty')){ seq.textContent=''; seq.classList.remove('empty'); }
+      const item=document.createElement('div'); item.className='code-block-item'; item.textContent=cmd.toUpperCase(); item.dataset.command=cmd; item.addEventListener('click',()=>removeCommand(item)); seq.append(item); updateSequenceView(); }
+
+    function removeCommand(item){ item.remove(); if(!document.getElementById('block-sequence').children.length){ const seq=document.getElementById('block-sequence'); seq.textContent='Drop blocks here'; seq.classList.add('empty'); } updateSequenceView(); }
+
+    function updateSequenceView(){ const seq=document.getElementById('block-sequence'); if(!seq) return; if(seq.children.length) seq.classList.remove('empty'); else { seq.textContent='Drop blocks here'; seq.classList.add('empty'); } if(LEVELS[levelIdx].mode==='text') updateCodeView(); }
+
+    function performStep(dir){ if(state.executing) return; moveBlox(dir); drawMaze(); checkWinAfterStep(); updatePath(); }
+
+    function addCommand(dir){ const sequence=document.getElementById('block-sequence'); if(sequence.classList.contains('empty')){ sequence.textContent=''; sequence.classList.remove('empty'); }
+      const item=document.createElement('div'); item.className='code-block-item'; item.textContent=dir.toUpperCase(); item.dataset.command=dir; item.addEventListener('click',()=>removeCommand(item)); sequence.append(item); updateSequenceView(); }
+
+    function updateCodeView(){ const seq=getSequence(); const codeArea=document.getElementById('code-editor'); if(codeArea){ const lines=seq.map(cmd=>`do${cmd.charAt(0).toUpperCase()+cmd.slice(1)}();`).join('\n'); codeArea.textContent=lines || '// Drag blocks here to see code'; } }
+
+    function getSequence(){ const seq=[]; const sequence=document.getElementById('block-sequence'); if(sequence){ [...sequence.children].forEach(child=>child.dataset?.command && seq.push(child.dataset.command)); } return seq; }
+
+    function executeSequence(){ if(state.executing) return; const seq = getSequence(); if(!seq.length){ log('Add commands first.', 'log-error'); return; } state.executing=true; log('Running your commands...', 'log-info'); animateSequence(seq); }
+
+    function animateSequence(seq){ let i=0; const interval=setInterval(()=>{ if(i>=seq.length){ clearInterval(interval); state.executing=false; checkFinalWin(seq); return; } moveBlox(seq[i]); drawMaze(); i++; }, 500); }
+
+    function moveBlox(dir){ const next={x:state.x,y:state.y}; if(dir==='right') next.x++; if(dir==='left') next.x--; if(dir==='up') next.y--; if(dir==='down') next.y++; if(next.x<0||next.x>5||next.y<0||next.y>4){ log('Blox cannot move there. Try another command.', 'log-error'); return; } state.x=next.x; state.y=next.y; state.path.push(dir); }
+
+    function checkWinAfterStep(){ const level=LEVELS[levelIdx]; if(state.x===level.goal.x && state.y===level.goal.y){ showWin(); } }
+
+    function checkFinalWin(seq){ const level=LEVELS[levelIdx]; if(state.x===level.goal.x && state.y===level.goal.y){ showWin(); } else { log('Blox did not reach the star. Try again.', 'log-error'); resetLevel(false); } }
+
+    function openHint(){ hintSteps.innerHTML=''; LEVELS[levelIdx].hint.forEach(step=>{ const li=document.createElement('li'); li.textContent=step; hintSteps.append(li); }); hintOverlay.classList.add('show'); }
+    function closeHint(){ hintOverlay.classList.remove('show'); }
+    function openAnswer(){ answerOverlay.classList.add('show'); }
+    function closeAnswer(){ answerOverlay.classList.remove('show'); }
+    function revealAnswer(){ answerOverlay.classList.remove('show'); const answer = LEVELS[levelIdx].answer; log('Answer: ' + answer.join('  '), 'log-hint'); if(LEVELS[levelIdx].mode==='blocks' || LEVELS[levelIdx].mode==='text'){ const seq=document.getElementById('block-sequence'); seq.innerHTML=''; answer.forEach(cmd=>addSequence(cmd)); } }
+
+    function showWin(){ winTitle.textContent='Great job!'; winMsg.textContent=levelIdx===LEVELS.length-1 ? 'You learned the basics. Now you are ready for Code Quest!' : 'Blox made it! Ready for the next level?'; winOverlay.classList.add('show'); winNext.onclick=()=>{ winOverlay.classList.remove('show'); levelIdx++; if(levelIdx>=LEVELS.length){ window.location.href='coding-1-code-quest.html'; } else { setupLevel(); } }; log('Level complete!', 'log-ok'); }
+    function closeWin(){ winOverlay.classList.remove('show'); }
+
+    function resetLevel(shouldLog=true){ const level=LEVELS[levelIdx]; state={ x:level.start.x, y:level.start.y, dir:level.start.dir, path:[], executing:false }; const seq=document.getElementById('block-sequence'); if(seq){ seq.innerHTML=''; seq.classList.add('empty'); seq.textContent='Drop blocks here'; } updateCodeView(); drawMaze(); if(shouldLog) log('Level reset. Try again.', 'log-info'); }
+
+    function updatePath(){ const current = state.path.join('  '); if(current){ levelMessage.textContent=`Path so far: ${current}`; } else { levelMessage.textContent=''; } }
+
+    setupLevel();
   </script>
-
 </body>
 </html>
