@@ -173,14 +173,21 @@
 
   // ── Launch game ────────────────────────────────────────────
   function launchGame(codename, url) {
+    console.log('🎮 Launching game:', codename, 'URL:', url);
     const gameName = codename.split('-').slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     showToast(`🎮 Launching ${gameName}…`, 'success');
-    setTimeout(() => window.location.href = url, 600);
+    
+    setTimeout(() => {
+      console.log('Navigating to:', url);
+      window.location.href = url;
+    }, 600);
   }
 
   // ── Game Progression System ─────────────────────────────────
   // Check which games are unlocked based on completion
   function updateGameUnlocks() {
+    console.log('🔓 Updating game unlocks...');
+    
     // Game progression map: {codename: prerequisite_codename_or_null}
     const gameFlow = {
       'coding-0-basics': null, // Always unlocked - entry level
@@ -192,25 +199,46 @@
     // Check each game's prerequisite
     Object.entries(gameFlow).forEach(([codename, prereq]) => {
       const cardEl = document.getElementById(`game-${codename}`);
-      if (!cardEl) return; // Card doesn't exist yet
+      if (!cardEl) {
+        console.log(`⚠️ Card ${codename} not found in DOM`);
+        return;
+      }
       
       if (prereq === null) {
         // No prerequisite — always unlocked
+        console.log(`✅ Unlocking ${codename} (no prerequisite)`);
         cardEl.style.opacity = '1';
         cardEl.style.pointerEvents = 'auto';
+        cardEl.style.cursor = 'pointer';
+        const button = cardEl.querySelector('button');
+        if (button) {
+          button.style.pointerEvents = 'auto';
+          button.disabled = false;
+        }
       } else {
         const isPrereqComplete = localStorage.getItem(`bs_game_completed_${prereq}`) === 'true';
         if (isPrereqComplete) {
           // Prerequisite met — unlock this game
+          console.log(`✅ Unlocking ${codename} (prerequisite complete)`);
           cardEl.style.opacity = '1';
           cardEl.style.pointerEvents = 'auto';
-          // Update UI to show it's now playable
-          cardEl.querySelector('.game-banner').style.filter = 'none';
+          cardEl.style.cursor = 'pointer';
+          const button = cardEl.querySelector('button');
+          if (button) {
+            button.style.pointerEvents = 'auto';
+            button.disabled = false;
+          }
         } else {
           // Prerequisite not met — keep locked
+          console.log(`🔒 Keeping ${codename} locked`);
           cardEl.style.opacity = '0.6';
           cardEl.style.pointerEvents = 'none';
           cardEl.style.cursor = 'not-allowed';
+          const button = cardEl.querySelector('button');
+          if (button) {
+            button.style.pointerEvents = 'none';
+            button.disabled = true;
+          }
         }
       }
     });
