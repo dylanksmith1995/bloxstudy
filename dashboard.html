@@ -54,6 +54,19 @@
 
       <div class="games-grid">
 
+        <div class="game-card" id="game-coding-0-basics">
+          <div class="game-banner" style="background: linear-gradient(135deg,#fef3c7,#fde68a);">🌟</div>
+          <div class="game-body">
+            <h3>Code Basics Adventure</h3>
+            <p>Start your coding journey! Help explorers, bakers, and animals learn about instructions and sequences.</p>
+            <span class="game-tag">Coding</span>
+            <span class="game-tag">Ages 5–8</span>
+            <div class="mt-sm">
+              <button class="btn btn-primary btn-sm btn-full" onclick="launchGame('coding-0-basics', 'games/coding/coding-0-basics.html')">▶ Play Now</button>
+            </div>
+          </div>
+        </div>
+
         <div class="game-card" id="game-coding-1-code-quest">
           <div class="game-banner" style="background: linear-gradient(135deg,#1e40af,#0ea5e9);">🤖</div>
           <div class="game-body">
@@ -68,15 +81,6 @@
         </div>
 
         <div class="game-card" id="game-coding-2-coming">
-          <div class="game-banner" style="background:var(--gray-100); font-size:2rem;">🔐</div>
-          <div class="game-body">
-            <h3 style="color:#9ca3af;">Locked</h3>
-            <p style="color:#9ca3af; font-size:0.9rem;">Complete <strong>Code Quest</strong> first to unlock more coding challenges!</p>
-            <span class="game-tag" style="background:rgba(156,163,175,0.2); color:var(--gray-600);">Locked</span>
-          </div>
-        </div>
-
-        <div class="game-card" id="game-coding-3-coming">
           <div class="game-banner" style="background:var(--gray-100); font-size:2rem;">🔐</div>
           <div class="game-body">
             <h3 style="color:#9ca3af;">Locked</h3>
@@ -179,7 +183,8 @@
   function updateGameUnlocks() {
     // Game progression map: {codename: prerequisite_codename_or_null}
     const gameFlow = {
-      'coding-1-code-quest': null, // Always unlocked
+      'coding-0-basics': null, // Always unlocked - entry level
+      'coding-1-code-quest': 'coding-0-basics',
       'coding-2-advanced-quest': 'coding-1-code-quest',
       'coding-3-expert-quest': 'coding-2-advanced-quest',
     };

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Basics Adventure — BloxStudy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #fef7ed;
+      --panel:   #ffffff;
+      --border:  #e5e7eb;
+      --accent:  #f59e0b;
+      --green:   #10b981;
+      --blue:    #3b82f6;
+      --purple:  #8b5cf6;
+      --text:    #1f2937;
+      --muted:   #6b7280;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Fredoka One', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    #hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 54px;
+      background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+      border-bottom: 2px solid var(--border);
+      flex-shrink: 0;
+      gap: 12px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 1.2rem; color: var(--accent);
+    }
+    #hdr-center { display: flex; align-items: center; gap: 10px; }
+    #level-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white; padding: 4px 14px;
+      border-radius: 20px; font-size: 0.82rem;
+    }
+    #level-title-hdr { font-size: 0.88rem; color: #92400e; }
+    #level-dots { display: flex; gap: 6px; align-items: center; }
+    .ldot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #d1d5db; transition: background 0.3s;
+    }
+    .ldot.done  { background: var(--green); }
+    .ldot.cur   { background: var(--accent); }
+
+    /* ── Main game area ─────────────────────────────────────────── */
+    #main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      overflow: hidden;
+    }
+
+    /* ── Game panel ─────────────────────────────────────────────── */
+    #game-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border-right: 2px solid var(--border);
+      position: relative;
+    }
+
+    #game-canvas {
+      flex: 1;
+      background: #f0f9ff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #controls {
+      padding: 16px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Info panel ─────────────────────────────────────────────── */
+    #info-panel {
+      background: var(--panel);
+      border-left: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-section:last-child { border-bottom: none; }
+
+    .panel-title {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-content {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* ── Buttons ────────────────────────────────────────────────── */
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-success { background: var(--green); }
+    .btn-primary { background: var(--blue); }
+
+    /* ── Control buttons ────────────────────────────────────────── */
+    #control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .control-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid #e5e7eb;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: all 0.2s;
+    }
+
+    .control-btn:hover {
+      border-color: var(--accent);
+      background: #fef3c7;
+      transform: scale(1.05);
+    }
+
+    .control-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* ── Drag and drop ──────────────────────────────────────────── */
+    #block-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .code-block {
+      background: var(--blue);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: grab;
+      font-size: 0.85rem;
+      user-select: none;
+    }
+
+    .code-block:hover { opacity: 0.8; }
+
+    #sequence-area {
+      min-height: 120px;
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9fafb;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .sequence-block {
+      background: var(--green);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      position: relative;
+    }
+
+    .sequence-block::after {
+      content: '×';
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .sequence-block:hover::after { opacity: 1; }
+
+    /* ── Win overlay ────────────────────────────────────────────── */
+    #win-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #win-overlay.open { display: flex; }
+    #win-card {
+      background: white;
+      border: 3px solid var(--green);
+      border-radius: 20px; padding: 30px;
+      text-align: center; max-width: 400px; width: 90vw;
+      animation: pop 0.3s ease;
+    }
+    #win-stars { font-size: 2rem; margin-bottom: 8px; }
+    #win-title {
+      font-size: 1.8rem; color: var(--green); margin-bottom: 10px;
+    }
+    #win-text {
+      font-family: 'Nunito', sans-serif; font-size: 0.9rem;
+      color: var(--muted); line-height: 1.6; margin-bottom: 20px;
+    }
+    #next-btn {
+      background: var(--green);
+      color: white; border: none;
+      border-radius: 10px; padding: 12px 30px;
+      font-family: 'Fredoka One', sans-serif; font-size: 1rem;
+      cursor: pointer;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div id="hdr">
+    <div class="logo">
+      <span>🎮</span>
+      Code Basics Adventure
+    </div>
+    <div id="hdr-center">
+      <div id="level-badge">Level 1</div>
+      <div id="level-title-hdr">Lost Explorer</div>
+      <div id="level-dots">
+        <div class="ldot cur"></div>
+        <div class="ldot"></div>
+        <div class="ldot"></div>
+        <div class="ldot"></div>
+      </div>
+    </div>
+    <div class="brand">BloxStudy</div>
+  </div>
+
+  <!-- Main game area -->
+  <div id="main">
+
+    <!-- Game panel -->
+    <div id="game-panel">
+      <div id="game-canvas">
+        <canvas id="scene-canvas" width="600" height="400"></canvas>
+      </div>
+      <div id="controls">
+        <!-- Dynamic controls based on level -->
+        <div id="control-buttons" style="display: none;">
+          <button class="control-btn" onclick="sendCommand('up')">⬆️</button>
+          <button class="control-btn" onclick="sendCommand('down')">⬇️</button>
+          <button class="control-btn" onclick="sendCommand('left')">⬅️</button>
+          <button class="control-btn" onclick="sendCommand('right')">➡️</button>
+        </div>
+
+        <div id="drag-drop-controls" style="display: none;">
+          <div id="block-palette">
+            <div class="code-block" draggable="true" data-action="move-right">Move Right</div>
+            <div class="code-block" draggable="true" data-action="move-up">Move Up</div>
+            <div class="code-block" draggable="true" data-action="plant-seed">Plant Seed</div>
+          </div>
+          <div id="sequence-area" ondrop="dropBlock(event)" ondragover="allowDrop(event)">
+            <!-- Blocks will be dropped here -->
+          </div>
+          <button class="btn btn-success" onclick="runSequence()">▶ Run Commands</button>
+        </div>
+
+        <div id="action-buttons" style="display: none;">
+          <button class="control-btn" onclick="sendCommand('feed-dog')">🐕</button>
+          <button class="control-btn" onclick="sendCommand('feed-cat')">🐱</button>
+          <button class="control-btn" onclick="sendCommand('feed-bird')">🐦</button>
+          <button class="control-btn" onclick="sendCommand('feed-fish')">🐠</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div id="info-panel">
+      <div class="panel-section">
+        <div class="panel-title">🤖 Helper Bot</div>
+        <div class="panel-content" id="helper-text">
+          Welcome to Code Basics Adventure! I'm here to help you learn about coding through fun games.
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">🎯 Your Mission</div>
+        <div class="panel-content" id="mission-text">
+          Help the lost explorer find their way home by guiding them with simple instructions.
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">💡 What You'll Learn</div>
+        <div class="panel-content" id="learning-text">
+          Computers need clear instructions to know what to do. Each button you press is like giving a command!
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Win overlay -->
+  <div id="win-overlay">
+    <div id="win-card">
+      <div id="win-stars">⭐⭐⭐</div>
+      <div id="win-title">Level Complete!</div>
+      <div id="win-text">Great job! You learned that computers need instructions to work.</div>
+      <button id="next-btn" onclick="nextLevel()">Next Level →</button>
+    </div>
+  </div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════
+let currentLevel = 0;
+let gameState = {};
+let sequence = [];
+
+// ═══════════════════════════════════════════════════════════
+// LEVEL DEFINITIONS
+// ═══════════════════════════════════════════════════════════
+const LEVELS = [
+  {
+    title: "Lost Explorer",
+    badge: "Level 1",
+    helper: "Hi! I'm Spark, your coding helper. This explorer is lost and needs your help!",
+    mission: "The explorer is lost in the jungle! Use the arrow buttons to guide them to the treasure chest. Each button press gives them one instruction.",
+    learning: "Computers need clear instructions to know what to do. Each button you press is like giving a command!",
+    controls: "buttons",
+    winCondition: "reach-treasure",
+    scene: "jungle"
+  },
+  {
+    title: "Cookie Factory",
+    badge: "Level 2",
+    helper: "Now we're in a cookie factory! Things happen in a specific order here.",
+    mission: "Help the baker make cookies! Drag the instruction blocks in the right order: Mix → Bake → Cool → Eat!",
+    learning: "Commands happen one after another, in sequence. The order matters!",
+    controls: "drag-drop",
+    winCondition: "correct-sequence",
+    scene: "factory"
+  },
+  {
+    title: "Animal Shelter",
+    badge: "Level 3",
+    helper: "Welcome to the animal shelter! Each animal needs something different.",
+    mission: "Feed all the hungry animals! Click the right animal button to give them their food.",
+    learning: "Different commands do different things. Choose the right command for each situation!",
+    controls: "actions",
+    winCondition: "feed-all-animals",
+    scene: "shelter"
+  },
+  {
+    title: "Magic Words",
+    badge: "Level 4",
+    helper: "Look! These are the magic words that make computers work.",
+    mission: "See how the commands you used become words! This is what real code looks like.",
+    learning: "Code is just words that tell computers what to do. You're learning to speak computer language!",
+    controls: "text-intro",
+    winCondition: "read-code",
+    scene: "magic"
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS SETUP
+// ═══════════════════════════════════════════════════════════
+const canvas = document.getElementById('scene-canvas');
+const ctx = canvas.getContext('2d');
+
+// ═══════════════════════════════════════════════════════════
+// GAME LOGIC
+// ═══════════════════════════════════════════════════════════
+function loadLevel() {
+  const level = LEVELS[currentLevel];
+
+  // Update UI
+  document.getElementById('level-badge').textContent = level.badge;
+  document.getElementById('level-title-hdr').textContent = level.title;
+  document.getElementById('helper-text').textContent = level.helper;
+  document.getElementById('mission-text').textContent = level.mission;
+  document.getElementById('learning-text').textContent = level.learning;
+
+  // Update level dots
+  const dots = document.querySelectorAll('.ldot');
+  dots.forEach((dot, i) => {
+    dot.className = 'ldot';
+    if (i < currentLevel) dot.classList.add('done');
+    else if (i === currentLevel) dot.classList.add('cur');
+  });
+
+  // Show appropriate controls
+  document.getElementById('control-buttons').style.display = 'none';
+  document.getElementById('drag-drop-controls').style.display = 'none';
+  document.getElementById('action-buttons').style.display = 'none';
+
+  if (level.controls === 'buttons') {
+    document.getElementById('control-buttons').style.display = 'flex';
+  } else if (level.controls === 'drag-drop') {
+    document.getElementById('drag-drop-controls').style.display = 'block';
+  } else if (level.controls === 'actions') {
+    document.getElementById('action-buttons').style.display = 'flex';
+  }
+
+  // Initialize level-specific state
+  gameState = {};
+  sequence = [];
+
+  if (level.scene === 'jungle') {
+    gameState.explorerPos = { x: 50, y: 350 };
+    gameState.treasurePos = { x: 500, y: 50 };
+  } else if (level.scene === 'factory') {
+    gameState.step = 0;
+    gameState.correctSequence = ['mix', 'bake', 'cool', 'eat'];
+  } else if (level.scene === 'shelter') {
+    gameState.fedAnimals = [];
+    gameState.animals = ['dog', 'cat', 'bird', 'fish'];
+  }
+
+  drawScene();
+}
+
+function sendCommand(command) {
+  const level = LEVELS[currentLevel];
+
+  if (level.scene === 'jungle') {
+    // Move explorer
+    if (command === 'up') gameState.explorerPos.y -= 30;
+    if (command === 'down') gameState.explorerPos.y += 30;
+    if (command === 'left') gameState.explorerPos.x -= 30;
+    if (command === 'right') gameState.explorerPos.x += 30;
+
+    // Check win condition
+    const dist = Math.sqrt(
+      Math.pow(gameState.explorerPos.x - gameState.treasurePos.x, 2) +
+      Math.pow(gameState.explorerPos.y - gameState.treasurePos.y, 2)
+    );
+    if (dist < 40) {
+      showWin();
+    }
+  } else if (level.scene === 'shelter') {
+    if (command.startsWith('feed-')) {
+      const animal = command.replace('feed-', '');
+      if (!gameState.fedAnimals.includes(animal)) {
+        gameState.fedAnimals.push(animal);
+        if (gameState.fedAnimals.length === gameState.animals.length) {
+          showWin();
+        }
+      }
+    }
+  }
+
+  drawScene();
+}
+
+function runSequence() {
+  if (sequence.length === 0) return;
+
+  const level = LEVELS[currentLevel];
+  if (level.scene === 'factory') {
+    const actions = sequence.map(block => block.action);
+    if (JSON.stringify(actions) === JSON.stringify(gameState.correctSequence)) {
+      showWin();
+    } else {
+      // Wrong sequence - reset
+      sequence = [];
+      document.getElementById('sequence-area').innerHTML = '';
+      alert('Not quite right! Try again. Hint: Mix → Bake → Cool → Eat');
+    }
+  }
+}
+
+function showWin() {
+  const level = LEVELS[currentLevel];
+  document.getElementById('win-text').textContent = level.winMessage || "Great job! You completed the level!";
+  document.getElementById('win-overlay').classList.add('open');
+}
+
+function nextLevel() {
+  document.getElementById('win-overlay').classList.remove('open');
+  if (currentLevel < LEVELS.length - 1) {
+    currentLevel++;
+    loadLevel();
+  } else {
+    // Game complete
+    document.getElementById('win-title').textContent = '🎉 Adventure Complete!';
+    document.getElementById('win-text').textContent = 'You\'ve learned the basics of coding! Ready for more adventures?';
+    document.getElementById('next-btn').textContent = '🏆 Finish';
+    document.getElementById('next-btn').onclick = () => {
+      localStorage.setItem('bs_game_completed_coding-0-basics', 'true');
+      window.location.href = '../dashboard.html';
+    };
+    document.getElementById('win-overlay').classList.add('open');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAG AND DROP
+// ═══════════════════════════════════════════════════════════
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function dragBlock(ev) {
+  ev.dataTransfer.setData("text", ev.target.dataset.action);
+}
+
+function dropBlock(ev) {
+  ev.preventDefault();
+  const action = ev.dataTransfer.getData("text");
+
+  // Add to sequence
+  sequence.push({ action, label: ev.dataTransfer.getData("label") || action });
+
+  // Update UI
+  const block = document.createElement('div');
+  block.className = 'sequence-block';
+  block.textContent = action.replace('-', ' ').toUpperCase();
+  block.onclick = () => {
+    const index = sequence.findIndex(s => s.action === action);
+    if (index > -1) {
+      sequence.splice(index, 1);
+      block.remove();
+    }
+  };
+
+  document.getElementById('sequence-area').appendChild(block);
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAWING
+// ═══════════════════════════════════════════════════════════
+function drawScene() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const level = LEVELS[currentLevel];
+
+  if (level.scene === 'jungle') {
+    drawJungle();
+  } else if (level.scene === 'factory') {
+    drawFactory();
+  } else if (level.scene === 'shelter') {
+    drawShelter();
+  } else if (level.scene === 'magic') {
+    drawMagic();
+  }
+}
+
+function drawJungle() {
+  // Jungle background
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(0, 350, 600, 50); // Ground
+
+  // Trees
+  ctx.fillStyle = '#16a34a';
+  for (let i = 0; i < 8; i++) {
+    const x = i * 70 + 30;
+    ctx.fillRect(x, 300, 20, 50);
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(x - 10, 280, 40, 30);
+    ctx.fillStyle = '#16a34a';
+  }
+
+  // Explorer
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(gameState.explorerPos.x - 10, gameState.explorerPos.y - 20, 20, 20);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(gameState.explorerPos.x - 5, gameState.explorerPos.y, 10, 20);
+
+  // Treasure
+  ctx.fillStyle = '#eab308';
+  ctx.fillRect(gameState.treasurePos.x - 15, gameState.treasurePos.y - 15, 30, 30);
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = '20px serif';
+  ctx.fillText('💰', gameState.treasurePos.x - 10, gameState.treasurePos.y + 5);
+}
+
+function drawFactory() {
+  // Factory background
+  ctx.fillStyle = '#e5e7eb';
+  ctx.fillRect(0, 0, 600, 400);
+
+  // Conveyor belt
+  ctx.fillStyle = '#9ca3af';
+  ctx.fillRect(0, 200, 600, 20);
+
+  // Cookie making stations
+  const stations = ['Mix', 'Bake', 'Cool', 'Eat'];
+  stations.forEach((station, i) => {
+    const x = i * 150 + 50;
+    ctx.fillStyle = '#6b7280';
+    ctx.fillRect(x, 150, 80, 40);
+    ctx.fillStyle = '#1f2937';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(station, x + 40, 175);
+  });
+
+  // Progress indicator
+  ctx.fillStyle = '#10b981';
+  for (let i = 0; i < gameState.step; i++) {
+    ctx.fillRect(i * 150 + 50, 130, 80, 10);
+  }
+}
+
+function drawShelter() {
+  // Shelter background
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(0, 0, 600, 400);
+
+  // Animals
+  const animals = [
+    { type: 'dog', emoji: '🐕', x: 100, fed: gameState.fedAnimals.includes('dog') },
+    { type: 'cat', emoji: '🐱', x: 250, fed: gameState.fedAnimals.includes('cat') },
+    { type: 'bird', emoji: '🐦', x: 400, fed: gameState.fedAnimals.includes('bird') },
+    { type: 'fish', emoji: '🐠', x: 550, fed: gameState.fedAnimals.includes('fish') }
+  ];
+
+  animals.forEach(animal => {
+    ctx.font = '40px serif';
+    ctx.fillText(animal.emoji, animal.x - 20, 200);
+    if (animal.fed) {
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('✓', animal.x + 10, 180);
+    }
+  });
+}
+
+function drawMagic() {
+  // Magic background
+  ctx.fillStyle = '#ddd6fe';
+  ctx.fillRect(0, 0, 600, 400);
+
+  // Magic code display
+  ctx.fillStyle = '#1f2937';
+  ctx.font = '16px monospace';
+  ctx.textAlign = 'left';
+
+  const codeLines = [
+    'move("right")',
+    'move("right")',
+    'move("up")',
+    'move("up")'
+  ];
+
+  codeLines.forEach((line, i) => {
+    ctx.fillText(line, 200, 150 + i * 30);
+  });
+
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = '20px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('✨ Code Magic! ✨', 300, 100);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+loadLevel();
+
+// Set up drag and drop
+document.querySelectorAll('.code-block').forEach(block => {
+  block.addEventListener('dragstart', dragBlock);
+});
+</script>
+
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\dylan\OneDrive\Documents\GitHubProjects\bloxstudy\games\coding\coding-0-basics.html

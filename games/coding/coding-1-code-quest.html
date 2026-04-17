@@ -65,6 +65,7 @@
     }
     .ldot.done  { background: var(--green);  box-shadow: 0 0 8px #4ade80; }
     .ldot.cur   { background: var(--accent); box-shadow: 0 0 8px #38bdf8; }
+    .ldot.basics { background: #fef3c7; border: 2px solid #f59e0b; }
     .brand { font-size: 0.78rem; color: #2e4a6e; }
 
     /* ── Main split ─────────────────────────────────────────────── */
@@ -481,6 +482,7 @@
       <span id="level-badge">Level 1</span>
       <span id="level-title-hdr">Your First Command</span>
       <div id="level-dots">
+        <div class="ldot"     id="dot-basics"></div>
         <div class="ldot cur" id="dot-0"></div>
         <div class="ldot"     id="dot-1"></div>
         <div class="ldot"     id="dot-2"></div>
@@ -1297,7 +1299,10 @@ function loadLevel() {
   animating   = false;
   setButtons(false);
 
-  // Update level dots
+  // Update level dots (including basics prerequisite)
+  const basicsCompleted = localStorage.getItem('bs_game_completed_coding-0-basics') === 'true';
+  document.getElementById('dot-basics').className = basicsCompleted ? 'ldot basics' : 'ldot';
+
   for (let i = 0; i < 4; i++) {
     const dot = document.getElementById('dot-' + i);
     dot.className = 'ldot' + (i < levelIdx ? ' done' : i === levelIdx ? ' cur' : '');
