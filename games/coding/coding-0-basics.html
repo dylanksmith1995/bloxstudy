@@ -1,465 +1,663 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Code Basics  BloxStudy</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Basics — BloxStudy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:      #07091a;
-      --panel:   #0d1530;
-      --panel2:  #111e3a;
-      --border:  #1e3560;
-      --accent:  #38bdf8;
-      --accent2: #818cf8;
-      --green:   #4ade80;
-      --yellow:  #fbbf24;
-      --red:     #f87171;
-      --text:    #e2e8f0;
-      --muted:   #6b7280;
+      --bg: #07091a;
+      --panel: #0d1530;
+      --border: #1e3560;
+      --accent: #38bdf8;
+      --green: #4ade80;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text: #e2e8f0;
+      --muted: #4e6585;
     }
 
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { min-height:100%; }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Fredoka One', sans-serif;
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      user-select:none;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
     }
 
     #hdr {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 24px;
-      height:56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 54px;
       background: linear-gradient(90deg, #0a1228 0%, #0f1d3a 100%);
-      border-bottom:2px solid var(--border);
-      gap:12px;
+      border-bottom: 2px solid var(--border);
+      flex-shrink: 0;
+      gap: 12px;
     }
-    .logo { display:flex; align-items:center; gap:8px; font-size:1.2rem; color:var(--accent); text-shadow:0 0 18px rgba(56,189,248,0.5); }
-    #hdr-center { display:flex; align-items:center; gap:10px; }
-    #level-badge { background: linear-gradient(135deg, #0ea5e9, #6366f1); color:white; padding:4px 12px; border-radius:20px; font-size:0.82rem; }
-    #level-title-hdr { font-size:0.88rem; color:#7ea8d8; }
-    #level-dots { display:flex; gap:6px; align-items:center; }
-    .ldot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all .3s ease; }
-    .ldot.done { background:var(--green); box-shadow:0 0 8px rgba(74,222,128,.35); }
-    .ldot.cur { background:var(--accent); box-shadow:0 0 8px rgba(56,189,248,.35); }
-    .brand { color:var(--muted); font-size:0.82rem; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 1.2rem; color: var(--accent); }
+    #hdr-center { display: flex; align-items: center; gap: 10px; }
+    #level-badge {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.82rem;
+    }
+    .ldot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); margin: 0 4px; }
+    .ldot.done { background: var(--green); }
+    .ldot.cur { background: var(--accent); }
 
-    #main { flex:1; display:grid; grid-template-columns:1fr 400px; overflow:hidden; }
+    #main { flex: 1; display: grid; grid-template-columns: 1fr 420px; overflow: hidden; }
     #maze-panel {
-      position:relative;
-      background: radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 38%), radial-gradient(circle at right bottom, rgba(74,222,128,.14), transparent 32%), #0d1530;
-      border-right:2px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-      overflow:hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #0d1e40 0%, #07091a 70%);
+      padding: 20px; overflow: hidden;
     }
-    #maze-panel::before {
-      content:'';
-      position:absolute;
-      inset:0;
-      background-image:
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,.07), transparent 20%),
-        radial-gradient(circle at 80% 80%, rgba(56,189,248,.05), transparent 18%);
-      pointer-events:none;
-    }
-    #maze-canvas { border-radius:16px; background:#020617; border:2px solid #1e3560; box-shadow:0 0 0 1px rgba(56,189,248,.12); }
+    #maze-canvas { border-radius: 12px; border: 2px solid var(--border); background: #020617; }
 
     #code-panel {
-      display:flex;
-      flex-direction:column;
-      background:var(--panel);
-      border-left:2px solid var(--border);
-      padding:18px 16px;
-      gap:12px;
-      overflow:hidden;
+      display: flex; flex-direction: column;
+      background: var(--panel); border-left: 2px solid var(--border);
+      padding: 18px; gap: 14px; overflow-y: auto;
     }
-    .panel-label { display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.72rem; text-transform:uppercase; color:var(--muted); letter-spacing:.08em; }
-    .panel-label span { color:#2a4265; }
+    .panel-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.08em; }
+    #lesson-text { font-family: 'Nunito', sans-serif; font-size: 0.9rem; line-height: 1.6; color: #cbd5e1; }
+    #controls-box { display: flex; flex-direction: column; gap: 10px; }
+    
+    .btn { border: none; border-radius: 10px; padding: 12px 16px; font-family: 'Fredoka One', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.15s ease; }
+    .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+    .btn-secondary { background: #0f1d38; color: #7ea8d8; border: 1.5px solid var(--border); }
+    .btn-warning { background: #1a0f00; color: #f97316; border: 1.5px solid #7c3a00; }
 
-    #editor-wrap {
-      display:flex;
-      background:#040d1c;
-      border:2px solid var(--border);
-      border-radius:16px;
-      overflow:hidden;
-      min-height:180px;
-      max-height:260px;
-    }
-    #line-nums { padding:14px 10px; font-family:'JetBrains Mono', monospace; font-size:13px; color:#1e3a5f; background:#030b18; text-align:right; border-right:1px solid #0d2040; user-select:none; }
-    #code-editor {
-      flex:1;
-      padding:14px 14px;
-      background:transparent;
-      color:#7dd3fc;
-      border:none;
-      outline:none;
-      font-family:'JetBrains Mono', monospace;
-      font-size:13px;
-      line-height:1.8;
-      resize:none;
-      caret-color:#38bdf8;
-    }
-    #code-editor::placeholder { color:#112236; }
+    #arrow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    #block-palette { display: flex; flex-wrap: wrap; gap: 8px; background: #08162d; border: 1px solid var(--border); border-radius: 10px; padding: 10px; min-height: 50px; }
+    #block-sequence { min-height: 60px; background: #08162d; border: 2px dashed var(--border); border-radius: 10px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; }
+    .block { padding: 8px 12px; background: #0f1d38; border: 1px solid #1e3560; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #7dd3fc; cursor: grab; white-space: nowrap; }
+    .block.dragging { opacity: 0.3; }
+    .block.from-palette { cursor: grab; }
+    .block.in-sequence { cursor: pointer; }
+    .in-sequence-placeholder { color: #6b7280; font-style: italic; }
 
-    #actions { display:flex; gap:10px; flex-wrap:wrap; }
-    .btn { border:none; border-radius:12px; padding:12px 16px; font-family:'Fredoka One', sans-serif; font-size:0.92rem; cursor:pointer; transition:transform .14s ease, filter .14s ease; display:flex; align-items:center; justify-content:center; gap:8px; }
-    .btn:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.08); }
-    .btn:active:not(:disabled) { transform:translateY(0); filter:brightness(.92); }
-    .btn:disabled { opacity:.45; cursor:not-allowed; }
-    #run-btn { background:linear-gradient(135deg, #22c55e, #16a34a); color:#fff; flex:1; }
-    #reset-btn, #hint-btn { background:#0f1d38; color:#7ea8d8; border:1.5px solid #1e3560; }
-    #answer-btn { background:#1a0f00; color:#f97316; border:1.5px solid #7c3a00; }
+    #code-display { background: #020617; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #7dd3fc; line-height: 1.6; min-height: 60px; }
 
-    #out-wrap { display:flex; flex-direction:column; overflow:hidden; min-height:90px; max-height:150px; background:#040d1c; border:2px solid var(--border); border-radius:16px; }
-    #out-header { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#07111f; border-bottom:1px solid #0d2040; font-size:0.7rem; font-family:'JetBrains Mono', monospace; color:#1e3a5f; }
-    .out-dot { width:8px; height:8px; border-radius:50%; }
-    #output-log { flex:1; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:12px; line-height:1.7; overflow-y:auto; }
-    .log-info { color:#38bdf8; }
-    .log-ok { color:#4ade80; }
-    .log-error { color:#f87171; }
-    .log-hint { color:#fbbf24; }
+    #output-log { background: #040d1c; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #7dd3fc; min-height: 50px; max-height: 100px; overflow-y: auto; }
+    .log-info { color: #38bdf8; }
+    .log-ok { color: #4ade80; }
+    .log-error { color: #f87171; }
 
-    #tut-bar { display:flex; align-items:center; gap:14px; border-top:2px solid var(--border); padding:10px 18px; background:linear-gradient(90deg, #07111f 0%, #0c1630 100%); }
-    #tut-robot { font-size:1.7rem; }
-    #tut-text { display:flex; flex-direction:column; gap:4px; }
-    #tut-title { font-size:0.95rem; color:#e2e8f0; }
-    #tut-body { font-size:0.84rem; color:#94a3b8; line-height:1.6; }
-    #tut-code { font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:#7dd3fc; margin-left:auto; }
+    .action-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
-    /* Drag blocks */
-    #block-palette, #block-sequence { background:#08162d; border:2px solid var(--border); border-radius:16px; min-height:110px; padding:12px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start; }
-    .code-block-item { padding:10px 14px; border-radius:14px; background:#0f1d38; border:1px solid #1e3560; color:#7dd3fc; font-family:'JetBrains Mono', monospace; font-size:0.85rem; cursor:grab; user-select:none; }
-    .code-block-item:active { cursor:grabbing; }
-    .code-block-item.dragging { opacity:.45; }
-    .sequence-slot { background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.12); border-radius:14px; width:100%; min-height:52px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px; }
-    .sequence-slot.empty { color:rgba(255,255,255,.35); }
-
-    #level-message { font-family:'Nunito', sans-serif; font-size:0.92rem; color:#cbd5e1; margin-top:8px; }
-
-    /* overlays */
-    #hint-overlay, #answer-overlay, #win-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; z-index:99; }
-    .overlay.show { display:flex; }
-    .overlay-card { background:linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%); border:2px solid var(--border); border-radius:18px; padding:28px 32px; width:min(92%,420px); text-align:center; }
-    .overlay-card h2 { font-size:1.45rem; margin-bottom:12px; }
-    .overlay-card p { color:#94a3b8; line-height:1.7; margin-bottom:20px; }
-    .overlay-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-    .overlay-btn { border:none; border-radius:12px; padding:12px 18px; cursor:pointer; font-family:'Fredoka One', sans-serif; font-size:0.95rem; transition:transform .14s ease; }
-    .overlay-btn:hover { transform:translateY(-1px); }
-    .overlay-btn.primary { background:linear-gradient(135deg, #22c55e, #16a34a); color:#000; }
-    .overlay-btn.secondary { background:#0f1d38; color:#7ea8d8; }
-
-    #hint-steps { text-align:left; margin:0 auto; max-width:320px; }
-    #hint-steps li { margin-bottom:10px; color:#cbd5e1; }
+    /* Modals */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 100; }
+    .modal.show { display: flex; }
+    .modal-card { background: linear-gradient(135deg, var(--panel) 0%, #111e3a 100%); border: 2px solid var(--border); border-radius: 16px; padding: 32px; width: 90%; max-width: 420px; }
+    .modal-card h2 { font-size: 1.4rem; margin-bottom: 12px; }
+    .modal-card p { color: #94a3b8; line-height: 1.7; margin-bottom: 16px; font-family: 'Nunito', sans-serif; }
+    .modal-card ul { margin-left: 16px; color: #cbd5e1; }
+    .modal-card li { margin-bottom: 8px; font-family: 'Nunito', sans-serif; }
+    .modal-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .modal-btn { padding: 10px 16px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Fredoka One', sans-serif; transition: all 0.15s; }
+    .modal-btn-primary { background: linear-gradient(135deg, #22c55e, #16a34a); color: #000; }
+    .modal-btn-primary:hover { transform: translateY(-1px); }
+    .modal-btn-secondary { background: #0f1d38; color: #7ea8d8; border: 1px solid var(--border); }
   </style>
 </head>
 <body>
 
   <div id="hdr">
-    <div class="logo"> Code Basics</div>
+    <div class="logo">🤖 Code Basics</div>
     <div id="hdr-center">
       <span id="level-badge">Level 1</span>
-      <span id="level-title-hdr">What is a Computer?</span>
-      <div id="level-dots">
+      <div style="display: flex; gap: 4px;">
         <div class="ldot cur" id="dot-0"></div>
         <div class="ldot" id="dot-1"></div>
         <div class="ldot" id="dot-2"></div>
         <div class="ldot" id="dot-3"></div>
       </div>
     </div>
-    <div class="brand">BloxStudy</div>
+    <div style="font-size: 0.75rem; color: #2e4a6e;">BloxStudy</div>
   </div>
 
   <div id="main">
     <div id="maze-panel">
-      <canvas id="maze-canvas" width="540" height="360"></canvas>
+      <canvas id="maze-canvas" width="480" height="360"></canvas>
     </div>
 
     <div id="code-panel">
-      <div class="panel-label"> <span>Instructions</span></div>
-      <div id="lesson-text" style="font-family:'Nunito',sans-serif;font-size:0.92rem;line-height:1.7;color:#dbeafe;">Loading level...</div>
+      <div class="panel-label">📖 Lesson</div>
+      <div id="lesson-text">Loading...</div>
 
-      <div class="panel-label"> <span>Guide Blox</span></div>
-      <div id="level-controls"></div>
+      <div class="panel-label" style="margin-top: 8px;">🎮 Controls</div>
+      <div id="controls-box"></div>
 
-      <div id="level-message"></div>
+      <div class="panel-label" style="margin-top: 8px;">📊 Output</div>
+      <div id="output-log"><span class="log-info">Ready to start!</span></div>
+    </div>
+  </div>
 
-      <div class="panel-label"> <span>Output</span></div>
-      <div id="out-wrap">
-        <div id="out-header">
-          <div class="out-dot" style="background:#f87171"></div>
-          <div class="out-dot" style="background:#fbbf24"></div>
-          <div class="out-dot" style="background:#4ade80"></div>
-          &nbsp; BLOX LOG
-        </div>
-        <div id="output-log"><span class="log-info"> Welcome! Follow the arrows to teach Blox how computers need instructions.</span></div>
+  <!-- Hint Modal -->
+  <div id="hint-modal" class="modal">
+    <div class="modal-card">
+      <h2>Hint</h2>
+      <ul id="hint-list"></ul>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-secondary" onclick="closeHint()">Close</button>
       </div>
     </div>
   </div>
 
-  <div id="tut-bar">
-    <div id="tut-robot"></div>
-    <div id="tut-text">
-      <div id="tut-title">Computers need instructions</div>
-      <div id="tut-body">Use the buttons or blocks to tell Blox exactly what to do.</div>
-    </div>
-    <div id="tut-code"></div>
-  </div>
-
-  <div id="hint-overlay" class="overlay">
-    <div class="overlay-card">
-      <h2>Need a hint?</h2>
-      <ul id="hint-steps"></ul>
-      <div class="overlay-btns">
-        <button class="overlay-btn secondary" onclick="closeHint()">Close</button>
+  <!-- Answer Modal -->
+  <div id="answer-modal" class="modal">
+    <div class="modal-card">
+      <h2>Show Answer?</h2>
+      <p>This is for learning. Try the hint first!</p>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-secondary" onclick="closeAnswer()">Not yet</button>
+        <button class="modal-btn modal-btn-primary" onclick="revealAnswer()">Show it</button>
       </div>
     </div>
   </div>
 
-  <div id="answer-overlay" class="overlay">
-    <div class="overlay-card">
-      <h2>Show the answer?</h2>
-      <p>This level is for learning, not memorizing. Try the hint first!</p>
-      <div class="overlay-btns">
-        <button class="overlay-btn secondary" onclick="closeAnswer()">Try hint</button>
-        <button class="overlay-btn primary" onclick="revealAnswer()">Show answer</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="win-overlay" class="overlay">
-    <div class="overlay-card">
-      <h2 id="win-title">Nice work!</h2>
-      <p id="win-msg">You completed the level.</p>
-      <div class="overlay-btns">
-        <button class="overlay-btn secondary" onclick="closeWin()">Keep going</button>
-        <button class="overlay-btn primary" id="win-next">Next level</button>
+  <!-- Win Modal -->
+  <div id="win-modal" class="modal">
+    <div class="modal-card">
+      <h2 id="win-title">Great job!</h2>
+      <p id="win-msg">Blox made it to the star!</p>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-secondary" onclick="nextLevel()">Next level →</button>
       </div>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('maze-canvas');
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width;
-    const H = canvas.height;
-
+    // ─────────────────────────────────────────────────────────────
+    // GAME STATE & CONFIG
+    // ─────────────────────────────────────────────────────────────
+    const GRID_SIZE = 80;
     const LEVELS = [
       {
-        title:'What is a Computer?',
-        theme:'Computers need instructions to know what to do.',
-        detail:'Click arrow buttons to guide Blox to the star.',
-        mode:'arrows',
-        start:{x:1,y:4,dir:0},
-        goal:{x:4,y:1},
-        sequence:['right','right','up'],
-        hint:['Press right to move Blox right.','Commands happen in order.','Reach the star to finish.'],
-        answer:['right','right','up'],
+        id: 0,
+        title: 'What is a Computer?',
+        lessonText: 'Computers need instructions to know what to do. Help Blox find the star by pressing arrow buttons.',
+        mode: 'arrows',
+        startX: 1, startY: 4,
+        goalX: 4, goalY: 1,
+        solution: ['right', 'right', 'up'],
+        hints: [
+          'Press the right arrow to move Blox to the right.',
+          'Keep pressing until Blox reaches the star.',
+          'Commands happen one at a time.'
+        ]
       },
       {
-        title:'One Thing After Another',
-        theme:'Commands happen in order, one after another.',
-        detail:'Drag the blocks into the sequence from left to right.',
-        mode:'blocks',
-        start:{x:1,y:4,dir:0},
-        goal:{x:4,y:1},
-        blocks:['right','right','up'],
-        hint:['Drag blocks into the slot.','The order matters.','Then press Run Code.'],
-        answer:['right','right','up'],
+        id: 1,
+        title: 'One Thing After Another',
+        lessonText: 'Drag the blocks into the sequence box, in order. Then press Run Code.',
+        mode: 'blocks',
+        startX: 1, startY: 4,
+        goalX: 4, goalY: 1,
+        solution: ['right', 'right', 'up'],
+        hints: [
+          'Drag each block from the left into the sequence box.',
+          'The order matters!',
+          'Press Run Code to execute the sequence.'
+        ]
       },
       {
-        title:'Different Commands',
-        theme:'Different words tell the computer to do different things.',
-        detail:'Use the direction buttons to build a path.',
-        mode:'buttons',
-        start:{x:1,y:4,dir:0},
-        goal:{x:4,y:1},
-        sequence:['right','up','right'],
-        hint:['Try a new button for a new direction.','Right moves right, up moves up.','Sequence is important.'],
-        answer:['right','up','right'],
+        id: 2,
+        title: 'Different Commands',
+        lessonText: 'Click direction buttons to build a sequence of commands. Find the right path!',
+        mode: 'buttons',
+        startX: 1, startY: 4,
+        goalX: 4, goalY: 1,
+        solution: ['right', 'up', 'right'],
+        hints: [
+          'Click Right, Up, Left, or Down to add commands.',
+          'Each click adds to your sequence.',
+          'Click a command in the sequence to remove it.'
+        ]
       },
       {
-        title:'Code is Just Words',
-        theme:'Code is words that tell computers what to do.',
-        detail:'Build the visual sequence, then read the text commands.',
-        mode:'text',
-        start:{x:1,y:4,dir:0},
-        goal:{x:4,y:1},
-        blocks:['right','up','right'],
-        hint:['The text version shows your commands.','Code is just words.','Run it after building the sequence.'],
-        answer:['right','up','right'],
+        id: 3,
+        title: 'Code is Just Words',
+        lessonText: 'Drag blocks into the sequence and watch the text code appear. Code is just words!',
+        mode: 'text',
+        startX: 1, startY: 4,
+        goalX: 4, goalY: 1,
+        solution: ['right', 'up', 'right'],
+        hints: [
+          'The text shows what your blocks mean.',
+          'Code is just instructions written as words.',
+          'Drag blocks, then press Run Code.'
+        ]
       }
     ];
 
-    let levelIdx = 0;
-    let state = { x:0,y:0,dir:0, path:[], executing:false };
-    let dragValue = null;
+    let currentLevel = 0;
+    let gameState = { bloxX: 0, bloxY: 0, path: [], executing: false, sequence: [] };
+    let draggedBlock = null;
 
-    const levelText = document.getElementById('lesson-text');
-    const levelControls = document.getElementById('level-controls');
-    const tutTitle = document.getElementById('tut-title');
-    const tutBody = document.getElementById('tut-body');
-    const tutCode = document.getElementById('tut-code');
-    const levelMessage = document.getElementById('level-message');
-    const outputLog = document.getElementById('output-log');
-    const dotEls = [0,1,2,3].map(i=>document.getElementById('dot-'+i));
-    const levelBadge = document.getElementById('level-badge');
-    const levelTitleHdr = document.getElementById('level-title-hdr');
-
-    const hintOverlay = document.getElementById('hint-overlay');
-    const answerOverlay = document.getElementById('answer-overlay');
-    const winOverlay = document.getElementById('win-overlay');
-    const hintSteps = document.getElementById('hint-steps');
-    const winTitle = document.getElementById('win-title');
-    const winMsg = document.getElementById('win-msg');
-    const winNext = document.getElementById('win-next');
-
-    function log(message, cls='log-info') {
-      outputLog.innerHTML = `<span class="${cls}"> ${message}</span>`;
-    }
+    // ─────────────────────────────────────────────────────────────
+    // CANVAS RENDERING
+    // ─────────────────────────────────────────────────────────────
+    const canvas = document.getElementById('maze-canvas');
+    const ctx = canvas.getContext('2d');
 
     function drawGrid() {
-      ctx.clearRect(0,0,W,H);
-      ctx.fillStyle='#07101f';
-      ctx.fillRect(0,0,W,H);
-      ctx.strokeStyle='rgba(255,255,255,0.08)';
-      for(let x=0;x<=6;x++){ ctx.beginPath(); ctx.moveTo(x*80,0); ctx.lineTo(x*80,H); ctx.stroke(); }
-      for(let y=0;y<=5;y++){ ctx.beginPath(); ctx.moveTo(0,y*80); ctx.lineTo(W,y*80); ctx.stroke(); }
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= 6; x++) {
+        ctx.beginPath(); ctx.moveTo(x * GRID_SIZE, 0); ctx.lineTo(x * GRID_SIZE, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y <= 4; y++) {
+        ctx.beginPath(); ctx.moveTo(0, y * GRID_SIZE); ctx.lineTo(canvas.width, y * GRID_SIZE); ctx.stroke();
+      }
     }
 
-    function drawMaze() {
-      const level=LEVELS[levelIdx];
+    function drawStar(x, y) {
+      ctx.fillStyle = 'rgba(74,222,128,0.2)';
+      ctx.fillRect(x * GRID_SIZE + 8, y * GRID_SIZE + 8, GRID_SIZE - 16, GRID_SIZE - 16);
+      ctx.font = '40px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('⭐', x * GRID_SIZE + GRID_SIZE / 2, y * GRID_SIZE + GRID_SIZE / 2);
+    }
+
+    function drawBlox(x, y) {
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(x * GRID_SIZE + 14, y * GRID_SIZE + 14, 52, 52);
+      // eyes
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(x * GRID_SIZE + 22, y * GRID_SIZE + 24, 14, 12);
+      ctx.fillRect(x * GRID_SIZE + 44, y * GRID_SIZE + 24, 14, 12);
+      // pupils
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(x * GRID_SIZE + 26, y * GRID_SIZE + 26, 6, 8);
+      ctx.fillRect(x * GRID_SIZE + 48, y * GRID_SIZE + 26, 6, 8);
+      // smile
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x * GRID_SIZE + GRID_SIZE / 2, y * GRID_SIZE + 45, 12, 0, Math.PI);
+      ctx.stroke();
+    }
+
+    function drawPath(path) {
+      if (path.length === 0) return;
+      ctx.strokeStyle = 'rgba(56,189,248,0.4)';
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      let x = gameState.bloxX, y = gameState.bloxY;
+      ctx.moveTo(x * GRID_SIZE + GRID_SIZE / 2, y * GRID_SIZE + GRID_SIZE / 2);
+      path.forEach(dir => {
+        if (dir === 'right') x++;
+        else if (dir === 'left') x--;
+        else if (dir === 'up') y--;
+        else if (dir === 'down') y++;
+        ctx.lineTo(x * GRID_SIZE + GRID_SIZE / 2, y * GRID_SIZE + GRID_SIZE / 2);
+      });
+      ctx.stroke();
+    }
+
+    function render() {
+      const level = LEVELS[currentLevel];
       drawGrid();
-      drawTarget(level.goal.x, level.goal.y);
-      drawPath();
-      drawBlox(state.x, state.y);
+      drawPath(gameState.path);
+      drawStar(level.goalX, level.goalY);
+      drawBlox(gameState.bloxX, gameState.bloxY);
     }
 
-    function drawTarget(x,y){ ctx.fillStyle='rgba(74,222,128,0.25)'; ctx.fillRect(x*80+10,y*80+10,60,60); ctx.font='32px Arial'; ctx.fillStyle='#4ade80'; ctx.textAlign='center'; ctx.fillText('', x*80+40, y*80+50); }
-    function drawPath(){ if(!state.path.length) return; ctx.strokeStyle='rgba(56,189,248,0.5)'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(state.x*80+40,state.y*80+40); let x=state.x,y=state.y; state.path.forEach(dir=>{ if(dir==='right') x++; if(dir==='left') x--; if(dir==='up') y--; if(dir==='down') y++; ctx.lineTo(x*80+40,y*80+40); }); ctx.stroke(); }
-    function drawBlox(x,y){ ctx.fillStyle='#38bdf8'; ctx.fillRect(x*80+14,y*80+14,52,52); ctx.fillStyle='#0f172a'; ctx.fillRect(x*80+22,y*80+24,16,16); ctx.fillRect(x*80+42,y*80+24,16,16); ctx.fillStyle='#38bdf8'; ctx.fillRect(x*80+30,y*80+40,10,8); }
+    // ─────────────────────────────────────────────────────────────
+    // GAME LOGIC
+    // ─────────────────────────────────────────────────────────────
+    function moveBlox(dir) {
+      const level = LEVELS[currentLevel];
+      let newX = gameState.bloxX, newY = gameState.bloxY;
+      if (dir === 'right') newX++;
+      else if (dir === 'left') newX--;
+      else if (dir === 'up') newY--;
+      else if (dir === 'down') newY++;
 
-    function setupLevel(){
-      const level=LEVELS[levelIdx];
-      levelBadge.textContent=`Level ${levelIdx+1}`;
-      levelTitleHdr.textContent=level.title;
-      levelText.textContent=`${level.theme} ${level.detail}`;
-      tutTitle.textContent=level.title;
-      tutBody.textContent=level.theme;
-      tutCode.textContent=level.mode==='text'?'Text code shows the same commands':'Use the controls below to move Blox.';
-      levelMessage.textContent='';
-      state={ x:level.start.x, y:level.start.y, dir:level.start.dir, path:[], executing:false };
-      dotEls.forEach((dot,i)=>dot.className='ldot'+(i===levelIdx?' cur': i<levelIdx?' done':''));
-      renderControls();
-      log('Welcome! Follow the instructions to help Blox.', 'log-info');
-      drawMaze();
+      if (newX < 0 || newX > 5 || newY < 0 || newY > 4) {
+        logOutput('Out of bounds! Try again.', 'error');
+        return false;
+      }
+      gameState.bloxX = newX;
+      gameState.bloxY = newY;
+      gameState.path.push(dir);
+      render();
+
+      if (gameState.bloxX === level.goalX && gameState.bloxY === level.goalY) {
+        setTimeout(winLevel, 300);
+      }
+      return true;
     }
 
-    function renderControls(){
-      const level=LEVELS[levelIdx];
-      levelControls.innerHTML='';
-      if(level.mode==='arrows'){ renderArrowControls(); }
-      if(level.mode==='blocks'){ renderBlockBuilder(); }
-      if(level.mode==='buttons'){ renderButtonSequence(); }
-      if(level.mode==='text'){ renderTextBuilder(); }
+    function executeSequence() {
+      if (gameState.executing) return;
+      const seq = gameState.sequence;
+      if (seq.length === 0) {
+        logOutput('Add commands first!', 'error');
+        return;
+      }
+      gameState.executing = true;
+      logOutput('Executing...', 'info');
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i >= seq.length) {
+          clearInterval(interval);
+          gameState.executing = false;
+          return;
+        }
+        moveBlox(seq[i]);
+        i++;
+      }, 400);
     }
 
-    function renderArrowControls(){
-      const wrapper=document.createElement('div');
-      wrapper.style.display='grid';
-      wrapper.style.gridTemplateColumns='repeat(3,1fr)';
-      wrapper.style.gap='10px';
-      const blank=document.createElement('div');
-      const up=createBtn(' Up',()=>performStep('up'));
-      const blank2=document.createElement('div');
-      const left=createBtn(' Left',()=>performStep('left'));
-      const right=createBtn('Right ',()=>performStep('right'));
-      const down=createBtn(' Down',()=>performStep('down'));
-      wrapper.append(blank,up,blank2,left,right,down);
-      levelControls.append(wrapper);
-      const note=document.createElement('div'); note.textContent='Press the arrows to guide Blox one step at a time.'; levelControls.append(note);
+    function addCommand(dir) {
+      gameState.sequence.push(dir);
+      renderSequence();
+      if (LEVELS[currentLevel].mode === 'text') renderCodeDisplay();
     }
 
-    function renderBlockBuilder(){
-      const palette=document.createElement('div'); palette.id='block-palette';
-      ['right','right','up'].forEach(cmd=>{ palette.append(createBlock(cmd)); });
-      const sequence=document.createElement('div'); sequence.id='block-sequence'; sequence.className='sequence-slot empty'; sequence.textContent='Drop blocks here in order'; sequence.addEventListener('dragover',ev=>ev.preventDefault()); sequence.addEventListener('drop',handleDrop);
-      levelControls.append(palette,sequence,createActionRow('Run Code',executeSequence,'Reset',resetLevel,'Hint',showHint,'Answer',openAnswer));
+    function removeCommand(idx) {
+      gameState.sequence.splice(idx, 1);
+      renderSequence();
+      if (LEVELS[currentLevel].mode === 'text') renderCodeDisplay();
     }
 
-    function renderButtonSequence(){
-      const toolbar=document.createElement('div'); toolbar.style.display='flex'; toolbar.style.flexWrap='wrap'; toolbar.style.gap='10px';
-      ['right','up','left','down'].forEach(dir=>{ toolbar.append(createBtn(dir.toUpperCase(),()=>addCommand(dir))); });
-      const sequence=document.createElement('div'); sequence.id='block-sequence'; sequence.className='sequence-slot empty'; sequence.textContent='Commands will appear here';
-      const bottom=createActionRow('Run Code',executeSequence,'Reset',resetLevel,'Hint',showHint,'Answer',openAnswer);
-      levelControls.append(toolbar,sequence,bottom);
+    function winLevel() {
+      const level = LEVELS[currentLevel];
+      document.getElementById('win-title').textContent = currentLevel === 3 ? 'Amazing! 🌟' : 'Great job! 🎉';
+      document.getElementById('win-msg').textContent = currentLevel === 3 ? 'You learned the coding basics. You\'re ready for Code Quest!' : 'Level ' + (currentLevel + 1) + ' complete!';
+      document.getElementById('win-modal').classList.add('show');
+      logOutput('Level complete!', 'ok');
     }
 
-    function renderTextBuilder(){
-      const palette=document.createElement('div'); palette.id='block-palette'; ['right','up','right'].forEach(cmd=>{ palette.append(createBlock(cmd)); });
-      const sequence=document.createElement('div'); sequence.id='block-sequence'; sequence.className='sequence-slot empty'; sequence.textContent='Drop blocks here'; sequence.addEventListener('dragover',ev=>ev.preventDefault()); sequence.addEventListener('drop',handleDrop);
-      const codeView=document.createElement('div'); codeView.id='code-editor'; codeView.style.background='#020e20'; codeView.style.color='#7dd3fc'; codeView.style.padding='12px'; codeView.style.borderRadius='14px'; codeView.style.minHeight='88px'; codeView.style.whiteSpace='pre-wrap'; codeView.style.fontFamily='JetBrains Mono, monospace'; codeView.textContent='';
-      const bottom=createActionRow('Show Code',updateCodeView,'Run Code',executeSequence,'Reset',resetLevel);
-      levelControls.append(palette,sequence,codeView,bottom);
+    function nextLevel() {
+      document.getElementById('win-modal').classList.remove('show');
+      if (currentLevel < LEVELS.length - 1) {
+        currentLevel++;
+        initLevel();
+      } else {
+        window.location.href = 'coding-1-code-quest.html';
+      }
     }
 
-    function createBtn(label,fn){ const btn=document.createElement('button'); btn.className='btn'; btn.textContent=label; btn.onclick=fn; return btn; }
-    function createActionRow(...items){ const row=document.createElement('div'); row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,1fr)'; row.style.gap='10px'; for(let i=0;i<items.length;i+=2){ const btn=createBtn(items[i],items[i+1]); row.append(btn);} return row; }
+    function resetLevel() {
+      const level = LEVELS[currentLevel];
+      gameState = { bloxX: level.startX, bloxY: level.startY, path: [], executing: false, sequence: [] };
+      renderSequence();
+      renderCodeDisplay();
+      logOutput('Level reset!', 'info');
+      render();
+    }
 
-    function createBlock(command){ const block=document.createElement('div'); block.className='code-block-item'; block.textContent=command.toUpperCase(); block.draggable=true; block.dataset.command=command; block.addEventListener('dragstart',(ev)=>{ ev.dataTransfer.setData('text/plain', command); block.classList.add('dragging'); }); block.addEventListener('dragend',()=>block.classList.remove('dragging')); return block; }
+    // ─────────────────────────────────────────────────────────────
+    // UI RENDERING
+    // ─────────────────────────────────────────────────────────────
+    function renderLevelUI() {
+      const level = LEVELS[currentLevel];
+      document.getElementById('level-badge').textContent = 'Level ' + (currentLevel + 1);
+      document.getElementById('lesson-text').textContent = level.lessonText;
+      
+      // Update dots
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('dot-' + i);
+        dot.className = 'ldot';
+        if (i === currentLevel) dot.classList.add('cur');
+        if (i < currentLevel) dot.classList.add('done');
+      }
 
-    function handleDrop(ev){ ev.preventDefault(); const data=ev.dataTransfer.getData('text/plain'); if(!data) return; addSequence(data); }
+      const controlsBox = document.getElementById('controls-box');
+      controlsBox.innerHTML = '';
 
-    function addSequence(cmd){ const seq=document.getElementById('block-sequence'); if(!seq) return; if(seq.classList.contains('empty')){ seq.textContent=''; seq.classList.remove('empty'); }
-      const item=document.createElement('div'); item.className='code-block-item'; item.textContent=cmd.toUpperCase(); item.dataset.command=cmd; item.addEventListener('click',()=>removeCommand(item)); seq.append(item); updateSequenceView(); }
+      if (level.mode === 'arrows') {
+        renderArrowControls();
+      } else if (level.mode === 'blocks' || level.mode === 'text') {
+        renderBlockControls();
+      } else if (level.mode === 'buttons') {
+        renderButtonControls();
+      }
+    }
 
-    function removeCommand(item){ item.remove(); if(!document.getElementById('block-sequence').children.length){ const seq=document.getElementById('block-sequence'); seq.textContent='Drop blocks here'; seq.classList.add('empty'); } updateSequenceView(); }
+    function renderArrowControls() {
+      const controlsBox = document.getElementById('controls-box');
+      const grid = document.createElement('div');
+      grid.id = 'arrow-grid';
+      
+      const blank1 = document.createElement('div');
+      const upBtn = createBtn('↑ Up', function() { moveBlox('up'); });
+      const blank2 = document.createElement('div');
+      const leftBtn = createBtn('← Left', function() { moveBlox('left'); });
+      const rightBtn = createBtn('Right →', function() { moveBlox('right'); });
+      const blank3 = document.createElement('div');
+      const downBtn = createBtn('↓ Down', function() { moveBlox('down'); });
+      const blank4 = document.createElement('div');
 
-    function updateSequenceView(){ const seq=document.getElementById('block-sequence'); if(!seq) return; if(seq.children.length) seq.classList.remove('empty'); else { seq.textContent='Drop blocks here'; seq.classList.add('empty'); } if(LEVELS[levelIdx].mode==='text') updateCodeView(); }
+      grid.append(blank1, upBtn, blank2, leftBtn, rightBtn, blank3, downBtn, blank4);
+      controlsBox.append(grid);
 
-    function performStep(dir){ if(state.executing) return; moveBlox(dir); drawMaze(); checkWinAfterStep(); updatePath(); }
+      const actionBox = document.createElement('div');
+      actionBox.className = 'action-buttons';
+      actionBox.append(
+        createBtn('Reset', resetLevel, 'btn-secondary'),
+        createBtn('Hint', openHint, 'btn-secondary')
+      );
+      controlsBox.append(actionBox);
+    }
 
-    function addCommand(dir){ const sequence=document.getElementById('block-sequence'); if(sequence.classList.contains('empty')){ sequence.textContent=''; sequence.classList.remove('empty'); }
-      const item=document.createElement('div'); item.className='code-block-item'; item.textContent=dir.toUpperCase(); item.dataset.command=dir; item.addEventListener('click',()=>removeCommand(item)); sequence.append(item); updateSequenceView(); }
+    function renderBlockControls() {
+      const controlsBox = document.getElementById('controls-box');
+      
+      const label = document.createElement('div');
+      label.className = 'panel-label';
+      label.textContent = '🧩 Blocks';
+      controlsBox.append(label);
 
-    function updateCodeView(){ const seq=getSequence(); const codeArea=document.getElementById('code-editor'); if(codeArea){ const lines=seq.map(cmd=>`do${cmd.charAt(0).toUpperCase()+cmd.slice(1)}();`).join('\n'); codeArea.textContent=lines || '// Drag blocks here to see code'; } }
+      const palette = document.createElement('div');
+      palette.id = 'block-palette';
+      LEVELS[currentLevel].solution.forEach(function(cmd) {
+        const block = createBlockElement(cmd, 'from-palette');
+        block.addEventListener('dragstart', dragStart);
+        palette.append(block);
+      });
+      controlsBox.append(palette);
 
-    function getSequence(){ const seq=[]; const sequence=document.getElementById('block-sequence'); if(sequence){ [...sequence.children].forEach(child=>child.dataset?.command && seq.push(child.dataset.command)); } return seq; }
+      const seqLabel = document.createElement('div');
+      seqLabel.className = 'panel-label';
+      seqLabel.textContent = '📝 Sequence';
+      controlsBox.append(seqLabel);
 
-    function executeSequence(){ if(state.executing) return; const seq = getSequence(); if(!seq.length){ log('Add commands first.', 'log-error'); return; } state.executing=true; log('Running your commands...', 'log-info'); animateSequence(seq); }
+      const sequence = document.createElement('div');
+      sequence.id = 'block-sequence';
+      sequence.addEventListener('dragover', function(e) { e.preventDefault(); });
+      sequence.addEventListener('drop', dragDrop);
+      renderSequence(sequence);
+      controlsBox.append(sequence);
 
-    function animateSequence(seq){ let i=0; const interval=setInterval(()=>{ if(i>=seq.length){ clearInterval(interval); state.executing=false; checkFinalWin(seq); return; } moveBlox(seq[i]); drawMaze(); i++; }, 500); }
+      if (LEVELS[currentLevel].mode === 'text') {
+        const codeLabel = document.createElement('div');
+        codeLabel.className = 'panel-label';
+        codeLabel.textContent = '💻 Code';
+        controlsBox.append(codeLabel);
 
-    function moveBlox(dir){ const next={x:state.x,y:state.y}; if(dir==='right') next.x++; if(dir==='left') next.x--; if(dir==='up') next.y--; if(dir==='down') next.y++; if(next.x<0||next.x>5||next.y<0||next.y>4){ log('Blox cannot move there. Try another command.', 'log-error'); return; } state.x=next.x; state.y=next.y; state.path.push(dir); }
+        const codeDisplay = document.createElement('div');
+        codeDisplay.id = 'code-display';
+        controlsBox.append(codeDisplay);
+        renderCodeDisplay(codeDisplay);
+      }
 
-    function checkWinAfterStep(){ const level=LEVELS[levelIdx]; if(state.x===level.goal.x && state.y===level.goal.y){ showWin(); } }
+      const actionBox = document.createElement('div');
+      actionBox.className = 'action-buttons';
+      actionBox.append(
+        createBtn('Run Code', executeSequence, 'btn-primary'),
+        createBtn('Reset', resetLevel, 'btn-secondary'),
+        createBtn('Hint', openHint, 'btn-secondary'),
+        createBtn('Answer', openAnswer, 'btn-warning')
+      );
+      controlsBox.append(actionBox);
+    }
 
-    function checkFinalWin(seq){ const level=LEVELS[levelIdx]; if(state.x===level.goal.x && state.y===level.goal.y){ showWin(); } else { log('Blox did not reach the star. Try again.', 'log-error'); resetLevel(false); } }
+    function renderButtonControls() {
+      const controlsBox = document.getElementById('controls-box');
+      
+      const btnBox = document.createElement('div');
+      btnBox.style.display = 'grid';
+      btnBox.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      btnBox.style.gap = '8px';
+      var dirs = ['right', 'left', 'up', 'down'];
+      dirs.forEach(function(dir) {
+        btnBox.append(createBtn(dir.toUpperCase(), function() { addCommand(dir); }, 'btn-primary'));
+      });
+      controlsBox.append(btnBox);
 
-    function openHint(){ hintSteps.innerHTML=''; LEVELS[levelIdx].hint.forEach(step=>{ const li=document.createElement('li'); li.textContent=step; hintSteps.append(li); }); hintOverlay.classList.add('show'); }
-    function closeHint(){ hintOverlay.classList.remove('show'); }
-    function openAnswer(){ answerOverlay.classList.add('show'); }
-    function closeAnswer(){ answerOverlay.classList.remove('show'); }
-    function revealAnswer(){ answerOverlay.classList.remove('show'); const answer = LEVELS[levelIdx].answer; log('Answer: ' + answer.join('  '), 'log-hint'); if(LEVELS[levelIdx].mode==='blocks' || LEVELS[levelIdx].mode==='text'){ const seq=document.getElementById('block-sequence'); seq.innerHTML=''; answer.forEach(cmd=>addSequence(cmd)); } }
+      const seqLabel = document.createElement('div');
+      seqLabel.className = 'panel-label';
+      seqLabel.style.marginTop = '12px';
+      seqLabel.textContent = '📝 Sequence';
+      controlsBox.append(seqLabel);
 
-    function showWin(){ winTitle.textContent='Great job!'; winMsg.textContent=levelIdx===LEVELS.length-1 ? 'You learned the basics. Now you are ready for Code Quest!' : 'Blox made it! Ready for the next level?'; winOverlay.classList.add('show'); winNext.onclick=()=>{ winOverlay.classList.remove('show'); levelIdx++; if(levelIdx>=LEVELS.length){ window.location.href='coding-1-code-quest.html'; } else { setupLevel(); } }; log('Level complete!', 'log-ok'); }
-    function closeWin(){ winOverlay.classList.remove('show'); }
+      const sequence = document.createElement('div');
+      sequence.id = 'block-sequence';
+      renderSequence(sequence);
+      controlsBox.append(sequence);
 
-    function resetLevel(shouldLog=true){ const level=LEVELS[levelIdx]; state={ x:level.start.x, y:level.start.y, dir:level.start.dir, path:[], executing:false }; const seq=document.getElementById('block-sequence'); if(seq){ seq.innerHTML=''; seq.classList.add('empty'); seq.textContent='Drop blocks here'; } updateCodeView(); drawMaze(); if(shouldLog) log('Level reset. Try again.', 'log-info'); }
+      const actionBox = document.createElement('div');
+      actionBox.className = 'action-buttons';
+      actionBox.append(
+        createBtn('Run Code', executeSequence, 'btn-primary'),
+        createBtn('Reset', resetLevel, 'btn-secondary'),
+        createBtn('Hint', openHint, 'btn-secondary'),
+        createBtn('Answer', openAnswer, 'btn-warning')
+      );
+      controlsBox.append(actionBox);
+    }
 
-    function updatePath(){ const current = state.path.join('  '); if(current){ levelMessage.textContent=`Path so far: ${current}`; } else { levelMessage.textContent=''; } }
+    function renderSequence(sequenceEl) {
+      var seq = sequenceEl || document.getElementById('block-sequence');
+      if (!seq) return;
+      seq.innerHTML = '';
+      if (gameState.sequence.length === 0) {
+        seq.innerHTML = '<span class="in-sequence-placeholder">Commands appear here</span>';
+      } else {
+        gameState.sequence.forEach(function(cmd, idx) {
+          var block = createBlockElement(cmd, 'in-sequence');
+          block.onclick = function() { removeCommand(idx); };
+          seq.append(block);
+        });
+      }
+    }
 
-    setupLevel();
+    function renderCodeDisplay(display) {
+      var codeEl = display || document.getElementById('code-display');
+      if (!codeEl) return;
+      var lines = gameState.sequence.map(function(cmd) { return cmd + '();'; }).join('\n');
+      codeEl.textContent = lines || '// Build your sequence';
+    }
+
+    function createBlockElement(text, cls) {
+      var el = document.createElement('div');
+      el.className = 'block ' + cls;
+      el.textContent = text.toUpperCase();
+      el.dataset.command = text;
+      return el;
+    }
+
+    function createBtn(text, onClick, cls) {
+      if (!cls) cls = 'btn-primary';
+      var btn = document.createElement('button');
+      btn.className = 'btn ' + cls;
+      btn.textContent = text;
+      btn.addEventListener('click', onClick);
+      return btn;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // DRAG & DROP
+    // ─────────────────────────────────────────────────────────────
+    function dragStart(e) {
+      draggedBlock = e.target.dataset.command;
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', draggedBlock);
+    }
+
+    function dragDrop(e) {
+      e.preventDefault();
+      var cmd = e.dataTransfer.getData('text/plain');
+      if (cmd) {
+        addCommand(cmd);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODALS & OUTPUT
+    // ─────────────────────────────────────────────────────────────
+    function logOutput(msg, type) {
+      if (!type) type = 'info';
+      var log = document.getElementById('output-log');
+      var cls = type === 'ok' ? 'log-ok' : type === 'error' ? 'log-error' : 'log-info';
+      log.innerHTML = '<span class="' + cls + '">▶ ' + msg + '</span>';
+    }
+
+    function openHint() {
+      var level = LEVELS[currentLevel];
+      var list = document.getElementById('hint-list');
+      list.innerHTML = '';
+      level.hints.forEach(function(hint) {
+        var li = document.createElement('li');
+        li.textContent = hint;
+        list.append(li);
+      });
+      document.getElementById('hint-modal').classList.add('show');
+    }
+
+    function closeHint() {
+      document.getElementById('hint-modal').classList.remove('show');
+    }
+
+    function openAnswer() {
+      document.getElementById('answer-modal').classList.add('show');
+    }
+
+    function closeAnswer() {
+      document.getElementById('answer-modal').classList.remove('show');
+    }
+
+    function revealAnswer() {
+      closeAnswer();
+      var answer = LEVELS[currentLevel].solution;
+      gameState.sequence = answer.slice();
+      renderSequence();
+      renderCodeDisplay();
+      logOutput('Answer shown: ' + answer.join(' → '), 'info');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────────────────────
+    function initLevel() {
+      var level = LEVELS[currentLevel];
+      gameState = { bloxX: level.startX, bloxY: level.startY, path: [], executing: false, sequence: [] };
+      renderLevelUI();
+      logOutput('Level ' + (currentLevel + 1) + ': ' + level.title, 'info');
+      render();
+    }
+
+    // Start game
+    initLevel();
   </script>
 </body>
 </html>
